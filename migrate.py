@@ -281,6 +281,13 @@ def do_json_pretty_print(args):
 
 
 def do_migrate_g2config_1(args):
+    
+    # Short-cut exit
+
+    print("The results of this subcommand are not accurate.")
+    print("See https://github.com/Senzing/migrate/issues/3")
+    print("Exiting early.")
+    sys.exit(1)
 
     # Parse command line arguments.
 
