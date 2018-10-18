@@ -107,8 +107,10 @@ migrate.py json-pretty-print -h
 
 ### migrate-g2config-1
 
+1. **NOTE:** this subcommand is currently disabled.
+    1. See [issue-3](https://github.com/Senzing/migrate/issues/3)
 1. What does it do?
-    1. In combines:
+    1. It combines:
        1. [json-add-keys](#json-add-keys)
        1. [json-add-list-elements](#json-add-list-elements)
 1. Example invocation
