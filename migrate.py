@@ -12,6 +12,12 @@ import os.path
 import sys
 import time
 
+list_element_unique_keys = {  
+    "a": ["b"],
+    "c": ["d", "e"],
+    "f": ["g", "h", "i"]
+}
+
 # -----------------------------------------------------------------------------
 # Define argument parser
 # -----------------------------------------------------------------------------
@@ -47,6 +53,36 @@ def get_parser():
     subparser_5.add_argument("--output-file", dest="output_filename", help="Output file pathname")
 
     return parser
+
+# -----------------------------------------------------------------------------
+# Utility functions
+# -----------------------------------------------------------------------------
+
+def keyed_needle_in_haystack(key, needle, haystack):
+    result = False
+    default_for_missing_value = "!no-key-value!"
+    
+    # Get the keys that represent the "compound unique key".
+    
+    needle_keys = list_element_unique_keys.get(key, [])
+    
+    # Go through the haystack to see if anything matches the "needle".
+    
+    for haystack_element in haystack:
+        
+        # Determine if an element from the haystack matches the needle.
+        # Assume it matches until a difference is found.
+        
+        matches = True
+        for needle_key in needle_keys:
+            needle_key_value = needle.get(needle_key, default_for_missing_value)
+            haystack_element_key_value = haystack_element.get(needle_key, default_for_missing_value)
+            if needle_key_value != haystack_element_key_value:
+                matches = False
+        if matches:
+            return True
+    
+    return result
 
 # -----------------------------------------------------------------------------
 # transform_* functions
@@ -86,6 +122,32 @@ def transform_add_list_elements(original_dictionary, update_dictionary):
                     original_dictionary[key].append(list_element)
         else:
             original_dictionary[key] = value
+    return original_dictionary
+
+def transform_add_list_unique_elements(original_dictionary, update_dictionary):
+    ''' Note: the original_directory is modified by this function. '''
+    for key, value in update_dictionary.items():
+        
+        # If a sub-dictionary, recurse.
+        
+        if isinstance(value, collections.Mapping):
+            original_dictionary[key] = transform_add_list_elements(original_dictionary.get(key, {}), value)
+        
+        # If a list, add missing elements for unique compound keys.
+        
+        elif isinstance(value, list):
+            if key not in original_dictionary:
+                original_dictionary[key] = []
+            for list_element in value:
+                if list_element not in original_dictionary[key]:
+                    if not keyed_needle_in_haystack(key, list_element, original_dictionary[key]):
+                        original_dictionary[key].append(list_element)
+        
+        # Else fill in any missing keys.  Do not over-write values.
+        
+        else:
+            if key not in original_dictionary:            
+                original_dictionary[key] = value
     return original_dictionary
 
 
@@ -281,13 +343,6 @@ def do_json_pretty_print(args):
 
 
 def do_migrate_g2config_1(args):
-    
-    # Short-cut exit
-
-    print("The results of this subcommand are not accurate.")
-    print("See https://github.com/Senzing/migrate/issues/3")
-    print("Exiting early.")
-    sys.exit(1)
 
     # Parse command line arguments.
 
@@ -316,9 +371,9 @@ def do_migrate_g2config_1(args):
         template_dictionary = json.load(template_file)
 
     # Do the transformation.
-
-    result_dictionary = transform_add_keys(existing_dictionary, copy.deepcopy(template_dictionary))
-    result_dictionary = transform_add_list_elements(result_dictionary, template_dictionary)
+    
+#   result_dictionary = transform_add_keys(existing_dictionary, copy.deepcopy(template_dictionary))
+    result_dictionary = transform_add_list_unique_elements(existing_dictionary, template_dictionary)
 
     # Write output.
 
