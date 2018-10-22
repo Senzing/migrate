@@ -12,35 +12,6 @@ import os.path
 import sys
 import time
 
-'''
-CREATE UNIQUE INDEX CFG_CFCALL_SK ON CFG_CFCALL(FTYPE_ID, CFUNC_ID) ;
-CREATE UNIQUE INDEX CFG_CFRTN_SK ON CFG_CFRTN(CFUNC_ID, CFUNC_RTNVAL) ;
-CREATE UNIQUE INDEX CFG_CFUNC_SK ON CFG_CFUNC(CFUNC_CODE) 
-CREATE UNIQUE INDEX CFG_DFUNC_SK ON CFG_DFUNC(DFUNC_CODE) ;
-CREATE UNIQUE INDEX CFG_DSRC_SK ON CFG_DSRC(DSRC_CODE) ;
-CREATE UNIQUE INDEX CFG_ECLASS_SK ON CFG_ECLASS(ECLASS_CODE) ;
-CREATE UNIQUE INDEX CFG_EFUNC_SK ON CFG_EFUNC(EFUNC_CODE) ;
-CREATE UNIQUE INDEX CFG_ERFRAG_SK ON CFG_ERFRAG(ERFRAG_CODE) ;
-CREATE UNIQUE INDEX CFG_ERRULE_SK ON CFG_ERRULE(ERRULE_CODE) ;
-CREATE UNIQUE INDEX CFG_ETYPE_SK ON CFG_ETYPE(ETYPE_CODE) ;
-
-CREATE UNIQUE INDEX CFG_FCLASS_SK ON CFG_FCLASS(FCLASS_CODE) ;
-CREATE UNIQUE INDEX CFG_FELEM_SK ON CFG_FELEM(FELEM_CODE) ;
-CREATE UNIQUE INDEX CFG_FTYPE_SK ON CFG_FTYPE(FTYPE_CODE) ;
-CREATE UNIQUE INDEX CFG_GPLAN_SK ON CFG_GPLAN(GPLAN_CODE) ;
-CREATE UNIQUE INDEX CFG_LENS_SK ON CFG_LENS(LENS_CODE) ;
-CREATE UNIQUE INDEX CFG_RCLASS_SK ON CFG_RCLASS(RCLASS_CODE) ;
-CREATE UNIQUE INDEX CFG_RTYPE_SK ON CFG_RTYPE(RTYPE_CODE) ;
-CREATE UNIQUE INDEX CFG_SFCALL_SK ON CFG_SFCALL(FTYPE_ID, SFUNC_ID) ;
-CREATE UNIQUE INDEX CFG_SFUNC_SK ON CFG_SFUNC(SFUNC_CODE) ;
-
-'''
-
-# Do not check on
-'''
-CREATE UNIQUE INDEX CFG_EFCALL_SK ON CFG_EFCALL(FTYPE_ID, EFUNC_ID) ;
-'''
-
 # This is a dictionary of a list of lists.  Each inner list specifies
 # JSON keys whose values, together, must be unique.
 
@@ -130,12 +101,12 @@ def keyed_needle_in_haystack(key, needle, haystack):
     for unique_keys in unique_keys_list:
 
         # Go through the haystack to see if anything matches the "needle".
-    
+
         for haystack_element in haystack:
-    
+
             # Determine if an element from the haystack matches the needle.
             # Assume it matches until a difference is found.
-    
+
             matches = True
             for unique_key in unique_keys:
                 unique_key_value = needle.get(unique_key, default_for_missing_value)
