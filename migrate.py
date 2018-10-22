@@ -12,39 +12,71 @@ import os.path
 import sys
 import time
 
+'''
+CREATE UNIQUE INDEX CFG_CFCALL_SK ON CFG_CFCALL(FTYPE_ID, CFUNC_ID) ;
+CREATE UNIQUE INDEX CFG_CFRTN_SK ON CFG_CFRTN(CFUNC_ID, CFUNC_RTNVAL) ;
+CREATE UNIQUE INDEX CFG_CFUNC_SK ON CFG_CFUNC(CFUNC_CODE) 
+CREATE UNIQUE INDEX CFG_DFUNC_SK ON CFG_DFUNC(DFUNC_CODE) ;
+CREATE UNIQUE INDEX CFG_DSRC_SK ON CFG_DSRC(DSRC_CODE) ;
+CREATE UNIQUE INDEX CFG_ECLASS_SK ON CFG_ECLASS(ECLASS_CODE) ;
+CREATE UNIQUE INDEX CFG_EFUNC_SK ON CFG_EFUNC(EFUNC_CODE) ;
+CREATE UNIQUE INDEX CFG_ERFRAG_SK ON CFG_ERFRAG(ERFRAG_CODE) ;
+CREATE UNIQUE INDEX CFG_ERRULE_SK ON CFG_ERRULE(ERRULE_CODE) ;
+CREATE UNIQUE INDEX CFG_ETYPE_SK ON CFG_ETYPE(ETYPE_CODE) ;
+
+CREATE UNIQUE INDEX CFG_FCLASS_SK ON CFG_FCLASS(FCLASS_CODE) ;
+CREATE UNIQUE INDEX CFG_FELEM_SK ON CFG_FELEM(FELEM_CODE) ;
+CREATE UNIQUE INDEX CFG_FTYPE_SK ON CFG_FTYPE(FTYPE_CODE) ;
+CREATE UNIQUE INDEX CFG_GPLAN_SK ON CFG_GPLAN(GPLAN_CODE) ;
+CREATE UNIQUE INDEX CFG_LENS_SK ON CFG_LENS(LENS_CODE) ;
+CREATE UNIQUE INDEX CFG_RCLASS_SK ON CFG_RCLASS(RCLASS_CODE) ;
+CREATE UNIQUE INDEX CFG_RTYPE_SK ON CFG_RTYPE(RTYPE_CODE) ;
+CREATE UNIQUE INDEX CFG_SFCALL_SK ON CFG_SFCALL(FTYPE_ID, SFUNC_ID) ;
+CREATE UNIQUE INDEX CFG_SFUNC_SK ON CFG_SFUNC(SFUNC_CODE) ;
+
+'''
+
+# Do not check on
+'''
+CREATE UNIQUE INDEX CFG_EFCALL_SK ON CFG_EFCALL(FTYPE_ID, EFUNC_ID) ;
+'''
+
+# This is a dictionary of a list of lists.  Each inner list specifies
+# JSON keys whose values, together, must be unique.
+
 list_element_unique_keys = {
-    "CFG_ATTR": ["ATTR_CODE"],
-    "CFG_CFBOM": ["CFCALL_ID", "FTYPE_ID", "FELEM_ID"],
-    "CFG_CFCALL": ["CFCALL_ID"],
-    "CFG_CFRTN": ["CFRTN_ID"],
-    "CFG_CFUNC": ["CFUNC_ID"],
-    "CFG_DFBOM": ["DFCALL_ID", "FTYPE_ID", "FELEM_ID"],
-    "CFG_DFCALL": ["DFCALL_ID"],
-    "CFG_DFUNC": ["DFUNC_ID"],
-    "CFG_DSRC": ["DSRC_ID"],
-    "CFG_EBOM": ["ETYPE_ID", "EXEC_ORDER"],
-    "CFG_ECLASS": ["ECLASS_ID"],
-    "CFG_EFBOM": ["EFCALL_ID", "FTYPE_ID", "FELEM_ID"],
-    "CFG_EFCALL": ["EFCALL_ID"],
-    "CFG_EFUNC": ["EFUNC_ID"],
-    "CFG_ERFRAG": ["ERFRAG_ID"],
-    "CFG_ERRULE": ["ERRULE_ID"],
-    "CFG_ESCORE": ["BEHAVIOR_CODE"],
-    "CFG_ETYPE": ["ETYPE_ID"],
-    "CFG_FBOM": ["FTYPE_ID", "FELEM_ID"],
-    "CFG_FBOVR": ["FTYPE_ID", "ECLASS_ID", "UTYPE_CODE"],
-    "CFG_FCLASS": ["FCLASS_ID"],
-    "CFG_FELEM": ["FELEM_ID"],
-    "CFG_FTYPE": ["FTYPE_ID"],
-    "CFG_GENERIC_THRESHOLD": ["GPLAN_ID", "BEHAVIOR", "FTYPE_ID"],
-    "CFG_GPLAN": ["GPLAN_ID"],
-    "CFG_LENS": ["LENS_ID"],
-    "CFG_RCLASS": ["RCLASS_ID"],
-    "CFG_RTYPE": ["RTYPE_ID"],
-    "CFG_SFCALL": ["SFCALL_ID"],
-    "CFG_SFUNC": ["SFUNC_ID"],
+    "CFG_ATTR": [["ATTR_CODE"]],
+    "CFG_CFBOM": [["CFCALL_ID", "FTYPE_ID", "FELEM_ID"]],
+    "CFG_CFCALL": [["CFCALL_ID"], ["FTYPE_ID", "CFUNC_ID"]],
+    "CFG_CFRTN": [["CFRTN_ID"], ["CFUNC_ID", "CFUNC_RTNVAL"]],
+    "CFG_CFUNC": [["CFUNC_ID"], ["CFUNC_CODE"]],
+    "CFG_DFBOM": [["DFCALL_ID", "FTYPE_ID", "FELEM_ID"]],
+    "CFG_DFCALL": [["DFCALL_ID"]],
+    "CFG_DFUNC": [["DFUNC_ID"], ["DFUNC_CODE"]],
+    "CFG_DSRC": [["DSRC_ID"], ["DSRC_CODE"]],
+    "CFG_EBOM": [["ETYPE_ID", "EXEC_ORDER"]],
+    "CFG_ECLASS": [["ECLASS_ID"], ["ECLASS_CODE"]],
+    "CFG_EFBOM": [["EFCALL_ID", "FTYPE_ID", "FELEM_ID"]],
+    "CFG_EFCALL": [["EFCALL_ID"]],
+    "CFG_EFUNC": [["EFUNC_ID"], ["EFUNC_CODE"]],
+    "CFG_ERFRAG": [["ERFRAG_ID"], ["ERFRAG_CODE"]],
+    "CFG_ERRULE": [["ERRULE_ID"], ["ERRULE_CODE"]],
+    "CFG_ESCORE": [["BEHAVIOR_CODE"]],
+    "CFG_ETYPE": [["ETYPE_ID"], ["ETYPE_CODE"]],
+    "CFG_FBOM": [["FTYPE_ID", "FELEM_ID"]],
+    "CFG_FBOVR": [["FTYPE_ID", "ECLASS_ID", "UTYPE_CODE"]],
+    "CFG_FCLASS": [["FCLASS_ID"], ["FCLASS_CODE"]],
+    "CFG_FELEM": [["FELEM_ID"], ["FELEM_CODE"]],
+    "CFG_FTYPE": [["FTYPE_ID"], ["FTYPE_CODE"]],
+    "CFG_GENERIC_THRESHOLD": [["GPLAN_ID", "BEHAVIOR", "FTYPE_ID"]],
+    "CFG_GPLAN": [["GPLAN_ID"], ["GPLAN_CODE"]],
+    "CFG_LENS": [["LENS_ID"], ["LENS_CODE"]],
+    "CFG_RCLASS": [["RCLASS_ID"], ["RCLASS_CODE"]],
+    "CFG_RTYPE": [["RTYPE_ID"], ["RTYPE_CODE"]],
+    "CFG_SFCALL": [["SFCALL_ID"], ["FTYPE_ID", "SFUNC_ID"]],
+    "CFG_SFUNC": [["SFUNC_ID"], ["SFUNC_CODE"]],
     "COMPATIBILITY_VERSION": [],
-    "SYS_OOM": ["OOM_TYPE", "OOM_LEVEL", "LENS_ID", "LIB_FEAT_ID", "FELEM_ID", "LIB_FELEM_ID"]
+    "SYS_OOM": [["OOM_TYPE", "OOM_LEVEL", "LENS_ID", "LIB_FEAT_ID", "FELEM_ID", "LIB_FELEM_ID"]]
 }
 
 # -----------------------------------------------------------------------------
@@ -87,30 +119,32 @@ def get_parser():
 # Utility functions
 # -----------------------------------------------------------------------------
 
+
 def keyed_needle_in_haystack(key, needle, haystack):
     result = False
     default_for_missing_value = "!no-key-value!"
-    
+
     # Get the keys that represent the "compound unique key".
+
+    unique_keys_list = list_element_unique_keys.get(key, [])
+    for unique_keys in unique_keys_list:
+
+        # Go through the haystack to see if anything matches the "needle".
     
-    needle_keys = list_element_unique_keys.get(key, [])
+        for haystack_element in haystack:
     
-    # Go through the haystack to see if anything matches the "needle".
+            # Determine if an element from the haystack matches the needle.
+            # Assume it matches until a difference is found.
     
-    for haystack_element in haystack:
-        
-        # Determine if an element from the haystack matches the needle.
-        # Assume it matches until a difference is found.
-        
-        matches = True
-        for needle_key in needle_keys:
-            needle_key_value = needle.get(needle_key, default_for_missing_value)
-            haystack_element_key_value = haystack_element.get(needle_key, default_for_missing_value)
-            if needle_key_value != haystack_element_key_value:
-                matches = False
-        if matches:
-            return True
-    
+            matches = True
+            for unique_key in unique_keys:
+                unique_key_value = needle.get(unique_key, default_for_missing_value)
+                haystack_element_key_value = haystack_element.get(unique_key, default_for_missing_value)
+                if unique_key_value != haystack_element_key_value:
+                    matches = False
+            if matches:
+                return True
+
     return result
 
 # -----------------------------------------------------------------------------
@@ -153,17 +187,18 @@ def transform_add_list_elements(original_dictionary, update_dictionary):
             original_dictionary[key] = value
     return original_dictionary
 
+
 def transform_add_list_unique_elements(original_dictionary, update_dictionary):
     ''' Note: the original_directory is modified by this function. '''
     for key, value in update_dictionary.items():
-        
+
         # If a sub-dictionary, recurse.
-        
+
         if isinstance(value, collections.Mapping):
             original_dictionary[key] = transform_add_list_unique_elements(original_dictionary.get(key, {}), value)
-        
+
         # If a list, add missing elements for unique compound keys.
-        
+
         elif isinstance(value, list):
             if key not in original_dictionary:
                 original_dictionary[key] = []
@@ -171,11 +206,11 @@ def transform_add_list_unique_elements(original_dictionary, update_dictionary):
                 if list_element not in original_dictionary[key]:
                     if not keyed_needle_in_haystack(key, list_element, original_dictionary[key]):
                         original_dictionary[key].append(list_element)
-        
+
         # Else fill in any missing keys.  Do not over-write values.
-        
+
         else:
-            if key not in original_dictionary:            
+            if key not in original_dictionary:
                 original_dictionary[key] = value
     return original_dictionary
 
@@ -400,7 +435,7 @@ def do_migrate_g2config_1(args):
         template_dictionary = json.load(template_file)
 
     # Do the transformation.
-    
+
 #   result_dictionary = transform_add_keys(existing_dictionary, copy.deepcopy(template_dictionary))
     result_dictionary = transform_add_list_unique_elements(existing_dictionary, template_dictionary)
 
