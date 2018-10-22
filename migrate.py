@@ -12,10 +12,39 @@ import os.path
 import sys
 import time
 
-list_element_unique_keys = {  
-    "a": ["b"],
-    "c": ["d", "e"],
-    "f": ["g", "h", "i"]
+list_element_unique_keys = {
+    "CFG_ATTR": ["ATTR_CODE"],
+    "CFG_CFBOM": ["CFCALL_ID", "FTYPE_ID", "FELEM_ID"],
+    "CFG_CFCALL": ["CFCALL_ID"],
+    "CFG_CFRTN": ["CFRTN_ID"],
+    "CFG_CFUNC": ["CFUNC_ID"],
+    "CFG_DFBOM": ["DFCALL_ID", "FTYPE_ID", "FELEM_ID"],
+    "CFG_DFCALL": ["DFCALL_ID"],
+    "CFG_DFUNC": ["DFUNC_ID"],
+    "CFG_DSRC": ["DSRC_ID"],
+    "CFG_EBOM": ["ETYPE_ID", "EXEC_ORDER"],
+    "CFG_ECLASS": ["ECLASS_ID"],
+    "CFG_EFBOM": ["EFCALL_ID", "FTYPE_ID", "FELEM_ID"],
+    "CFG_EFCALL": ["EFCALL_ID"],
+    "CFG_EFUNC": ["EFUNC_ID"],
+    "CFG_ERFRAG": ["ERFRAG_ID"],
+    "CFG_ERRULE": ["ERRULE_ID"],
+    "CFG_ESCORE": ["BEHAVIOR_CODE"],
+    "CFG_ETYPE": ["ETYPE_ID"],
+    "CFG_FBOM": ["FTYPE_ID", "FELEM_ID"],
+    "CFG_FBOVR": ["FTYPE_ID", "ECLASS_ID", "UTYPE_CODE"],
+    "CFG_FCLASS": ["FCLASS_ID"],
+    "CFG_FELEM": ["FELEM_ID"],
+    "CFG_FTYPE": ["FTYPE_ID"],
+    "CFG_GENERIC_THRESHOLD": ["GPLAN_ID", "BEHAVIOR", "FTYPE_ID"],
+    "CFG_GPLAN": ["GPLAN_ID"],
+    "CFG_LENS": ["LENS_ID"],
+    "CFG_RCLASS": ["RCLASS_ID"],
+    "CFG_RTYPE": ["RTYPE_ID"],
+    "CFG_SFCALL": ["SFCALL_ID"],
+    "CFG_SFUNC": ["SFUNC_ID"],
+    "COMPATIBILITY_VERSION": [],
+    "SYS_OOM": ["OOM_TYPE", "OOM_LEVEL", "LENS_ID", "LIB_FEAT_ID", "FELEM_ID", "LIB_FELEM_ID"]
 }
 
 # -----------------------------------------------------------------------------
@@ -131,7 +160,7 @@ def transform_add_list_unique_elements(original_dictionary, update_dictionary):
         # If a sub-dictionary, recurse.
         
         if isinstance(value, collections.Mapping):
-            original_dictionary[key] = transform_add_list_elements(original_dictionary.get(key, {}), value)
+            original_dictionary[key] = transform_add_list_unique_elements(original_dictionary.get(key, {}), value)
         
         # If a list, add missing elements for unique compound keys.
         
