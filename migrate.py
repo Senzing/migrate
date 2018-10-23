@@ -124,7 +124,7 @@ def keyed_needle_in_haystack(key, needle, haystack):
 # -----------------------------------------------------------------------------
 
 
-def transform_add_escr_etype(original_dictionary, update_dictionary):
+def transform_add_dsrc_etype(original_dictionary, update_dictionary):
     ''' Insert G2_CONFIG.CFG_DSRC and G2_CONFIG.CFG_ETYPE into original dictionary.'''
     result_dictionary = copy.deepcopy(original_dictionary)
     result_dictionary["G2_CONFIG"]["CFG_DSRC"] = update_dictionary.get("G2_CONFIG", {}).get("CFG_DSRC", {})
@@ -185,18 +185,6 @@ def transform_add_list_unique_elements(original_dictionary, update_dictionary):
                 original_dictionary[key] = value
     return original_dictionary
 
-
-def transform_replace_values(original_dictionary, update_dictionary):
-    ''' The dictionary returned is the original_dictionary
-        with values updated from the update_dictionary.
-        Note: update_dictionary is modified by this function. '''
-    for key, value in original_dictionary.items():
-        if isinstance(value, collections.Mapping):
-            update_dictionary[key] = transform_add_keys(update_dictionary.get(key, {}), value)
-        else:
-            update_dictionary[key] = value
-    return update_dictionary
-
 # -----------------------------------------------------------------------------
 # do_* functions
 #   Common function signature: do_XXX(args)
@@ -237,7 +225,7 @@ def do_add_dscr_etype(args):
 
     # Do the transformation.
 
-    result_dictionary = transform_add_escr_etype(existing_dictionary, template_dictionary)
+    result_dictionary = transform_add_dsrc_etype(existing_dictionary, template_dictionary)
 
     # Write output.
 

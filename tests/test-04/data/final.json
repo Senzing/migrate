@@ -13,6 +13,17 @@
                 "INTERNAL": 0
             }, 
             {
+                "ADVANCED": 0, 
+                "ATTR_CLASS": "IDENTIFIER", 
+                "ATTR_CODE": "ACCOUNT_NUMBER", 
+                "ATTR_ID": 1311, 
+                "DEFAULT_VALUE": "", 
+                "FELEM_CODE": "ACCT_NUM", 
+                "FELEM_REQ": "YES", 
+                "FTYPE_CODE": "ACCT_NUM", 
+                "INTERNAL": 0
+            }, 
+            {
                 "ADVANCED": 1, 
                 "ATTR_CLASS": "IDENTIFIER", 
                 "ATTR_CODE": "WEBSITE_PREHASHED", 
@@ -128,6 +139,14 @@
                 "CONNECT_STR": "g2StrictSubsetFelems", 
                 "DFUNC_CODE": "FELEM_STRICT_SUBSET", 
                 "DFUNC_ID": 1, 
+                "FUNC_LIB": "g2func_lib", 
+                "FUNC_VER": "1"
+            }, 
+            {
+                "ANON_SUPPORT": 1, 
+                "CONNECT_STR": "g2StrictSubsetTokens", 
+                "DFUNC_CODE": "TOKEN_STRICT_SUBSET", 
+                "DFUNC_ID": 2, 
                 "FUNC_LIB": "g2func_lib", 
                 "FUNC_VER": "1"
             }, 

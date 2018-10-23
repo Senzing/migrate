@@ -1,5 +1,30 @@
 {
     "G2_CONFIG": {
+        "AAAAAA": [
+            {
+                "ADVANCED": 0, 
+                "ATTR_CLASS": "IDENTIFIER", 
+                "ATTR_CODE": "ACCOUNT_DOMAIN", 
+                "ATTR_ID": 1312, 
+                "DEFAULT_VALUE": "", 
+                "FELEM_CODE": "ACCT_DOMAIN", 
+                "FELEM_REQ": "NO", 
+                "FTYPE_CODE": "ACCT_NUM", 
+                "INTERNAL": 0,
+                "NEW_KEY": "new-value"
+            }, 
+            {
+                "ADVANCED": 1, 
+                "ATTR_CLASS": "IDENTIFIER", 
+                "ATTR_CODE": "WEBSITE_PREHASHED", 
+                "ATTR_ID": 1500, 
+                "DEFAULT_VALUE": "", 
+                "FELEM_CODE": "<PREHASHED>", 
+                "FELEM_REQ": "NO", 
+                "FTYPE_CODE": "WEBSITE", 
+                "INTERNAL": 1
+            }
+        ],
         "CFG_ATTR": [
             {
                 "ADVANCED": 0, 
@@ -10,7 +35,8 @@
                 "FELEM_CODE": "ACCT_DOMAIN", 
                 "FELEM_REQ": "NO", 
                 "FTYPE_CODE": "ACCT_NUM", 
-                "INTERNAL": 0
+                "INTERNAL": 0,
+                "NEW_KEY": "new-value"
             }, 
             {
                 "ADVANCED": 1, 

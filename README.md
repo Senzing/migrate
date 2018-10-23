@@ -8,8 +8,7 @@ for performing Senzing migration tasks.
 To see all of the subcommands, run
 
 ```console
-$ migrate.py -h
-
+$ ./migrate.py -h
 usage: migrate [-h]
                {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config-1}
                ...
@@ -30,7 +29,6 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-
 ```
 
 To see the options for a subcommand, run commands like:
@@ -41,15 +39,12 @@ migrate.py json-pretty-print -h
 
 ### Contents
 
-1. [Use cases](#use-cases)
 1. [Sub-command details](#sub-command-details)
     1. [add-descr-etype](#add-descr-etype)
     1. [json-add-keys](#json-add-keys)
     1. [json-add-list-elements](#json-add-list-elements)
     1. [json-pretty-print](#json-pretty-print)
     1. [migrate-g2config-1](#migrate-g2config-1)
-
-## Use cases
 
 ## Sub-command details
 
@@ -70,7 +65,7 @@ migrate.py json-pretty-print -h
 
 1. What does it do?
     1. Start with the existing file contents.
-    1. Add in JSON key/value pairs that are in the template file, but not in the existing file.
+    1. Add JSON key/value pairs that are in the template file, but not in the existing file.
     1. Values that are in the existing file are *not* overwritten.
 1. Example invocation
 
@@ -107,12 +102,11 @@ migrate.py json-pretty-print -h
 
 ### migrate-g2config-1
 
-1. **NOTE:** this subcommand is currently disabled.
-    1. See [issue-3](https://github.com/Senzing/migrate/issues/3)
 1. What does it do?
-    1. It combines:
-       1. [json-add-keys](#json-add-keys)
-       1. [json-add-list-elements](#json-add-list-elements)
+    1. Start with the existing file contents.
+    1. Add JSON key/value pairs that are in the template file, but not in the existing file.
+    1. Add new elements to existing lists.
+    1. Values that are in the existing file are *not* overwritten.
 1. Example invocation
 
     ```console

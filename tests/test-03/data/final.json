@@ -1,6 +1,6 @@
 {
     "G2_CONFIG": {
-        "CFG_ATTR": [
+        "AAAAAA": [
             {
                 "ADVANCED": 0, 
                 "ATTR_CLASS": "IDENTIFIER", 
@@ -10,7 +10,8 @@
                 "FELEM_CODE": "ACCT_DOMAIN", 
                 "FELEM_REQ": "NO", 
                 "FTYPE_CODE": "ACCT_NUM", 
-                "INTERNAL": 0
+                "INTERNAL": 0, 
+                "NEW_KEY": "new-value"
             }, 
             {
                 "ADVANCED": 1, 
@@ -24,18 +25,36 @@
                 "INTERNAL": 1
             }
         ], 
+        "CFG_ATTR": [
+            {
+                "ADVANCED": 0, 
+                "ATTR_CLASS": "IDENTIFIER", 
+                "ATTR_CODE": "ACCOUNT_DOMAIN", 
+                "ATTR_ID": 1312, 
+                "DEFAULT_VALUE": "", 
+                "FELEM_CODE": "ACCT_DOMAIN", 
+                "FELEM_REQ": "NO", 
+                "FTYPE_CODE": "ACCT_NUM", 
+                "INTERNAL": 0
+            }, 
+            {
+                "ADVANCED": 0, 
+                "ATTR_CLASS": "IDENTIFIER", 
+                "ATTR_CODE": "ACCOUNT_NUMBER", 
+                "ATTR_ID": 1311, 
+                "DEFAULT_VALUE": "", 
+                "FELEM_CODE": "ACCT_NUM", 
+                "FELEM_REQ": "YES", 
+                "FTYPE_CODE": "ACCT_NUM", 
+                "INTERNAL": 0
+            }
+        ], 
         "CFG_CFBOM": [
             {
                 "CFCALL_ID": 1, 
                 "EXEC_ORDER": 1, 
                 "FELEM_ID": 2, 
                 "FTYPE_ID": 1
-            }, 
-            {
-                "CFCALL_ID": 41, 
-                "EXEC_ORDER": 2, 
-                "FELEM_ID": 3, 
-                "FTYPE_ID": 57
             }
         ], 
         "CFG_CFCALL": [
@@ -44,29 +63,12 @@
                 "CFUNC_ID": 2, 
                 "EXEC_ORDER": 1, 
                 "FTYPE_ID": 1
-            }, 
-            {
-                "CFCALL_ID": 41, 
-                "CFUNC_ID": 12, 
-                "EXEC_ORDER": 1, 
-                "FTYPE_ID": 57
             }
         ], 
         "CFG_CFRTN": [
             {
                 "CFRTN_ID": 1, 
                 "CFUNC_ID": 1, 
-                "CFUNC_RTNVAL": "FULL_SCORE", 
-                "CLOSE_SCORE": 90, 
-                "EXEC_ORDER": 1, 
-                "LIKELY_SCORE": 80, 
-                "PLAUSIBLE_SCORE": 70, 
-                "SAME_SCORE": 100, 
-                "UN_LIKELY_SCORE": 60
-            }, 
-            {
-                "CFRTN_ID": 17, 
-                "CFUNC_ID": 12, 
                 "CFUNC_RTNVAL": "FULL_SCORE", 
                 "CLOSE_SCORE": 90, 
                 "EXEC_ORDER": 1, 
@@ -84,14 +86,6 @@
                 "CONNECT_STR": "g2StringComp", 
                 "FUNC_LIB": "INT_LIB", 
                 "FUNC_VER": "1"
-            }, 
-            {
-                "ANON_SUPPORT": 1, 
-                "CFUNC_CODE": "GROUP_ASSOCIATION_COMP", 
-                "CFUNC_ID": 12, 
-                "CONNECT_STR": "g2GroupAssociationComp", 
-                "FUNC_LIB": "INT_LIB", 
-                "FUNC_VER": "1"
             }
         ], 
         "CFG_DFBOM": [
@@ -100,12 +94,6 @@
                 "EXEC_ORDER": 1, 
                 "FELEM_ID": 2, 
                 "FTYPE_ID": 1
-            }, 
-            {
-                "DFCALL_ID": 57, 
-                "EXEC_ORDER": 2, 
-                "FELEM_ID": 3, 
-                "FTYPE_ID": 57
             }
         ], 
         "CFG_DFCALL": [
@@ -114,12 +102,6 @@
                 "DFUNC_ID": 2, 
                 "EXEC_ORDER": 1, 
                 "FTYPE_ID": 1
-            }, 
-            {
-                "DFCALL_ID": 57, 
-                "DFUNC_ID": 1, 
-                "EXEC_ORDER": 1, 
-                "FTYPE_ID": 57
             }
         ], 
         "CFG_DFUNC": [
@@ -132,18 +114,10 @@
                 "FUNC_VER": "1"
             }, 
             {
-                "ANON_SUPPORT": 9999, 
+                "ANON_SUPPORT": 1, 
                 "CONNECT_STR": "g2StrictSubsetTokens", 
                 "DFUNC_CODE": "TOKEN_STRICT_SUBSET", 
                 "DFUNC_ID": 2, 
-                "FUNC_LIB": "g2func_lib", 
-                "FUNC_VER": "9999"
-            }, 
-            {
-                "ANON_SUPPORT": 1, 
-                "CONNECT_STR": "g2PartialDates", 
-                "DFUNC_CODE": "PARTIAL_DATES", 
-                "DFUNC_ID": 4, 
                 "FUNC_LIB": "g2func_lib", 
                 "FUNC_VER": "1"
             }
@@ -156,14 +130,6 @@
                 "DSRC_ID": 1, 
                 "DSRC_RELY": 1, 
                 "RETENTION_LEVEL": "Remember"
-            }, 
-            {
-                "CONVERSATIONAL": 1, 
-                "DSRC_CODE": "SEARCH", 
-                "DSRC_DESC": "Search", 
-                "DSRC_ID": 2, 
-                "DSRC_RELY": 1, 
-                "RETENTION_LEVEL": "Forget"
             }
         ], 
         "CFG_EBOM": [
@@ -171,12 +137,6 @@
                 "ETYPE_ID": 1, 
                 "EXEC_ORDER": 1, 
                 "FTYPE_ID": 16, 
-                "UTYPE_CODE": ""
-            }, 
-            {
-                "ETYPE_ID": 3, 
-                "EXEC_ORDER": 24, 
-                "FTYPE_ID": 53, 
                 "UTYPE_CODE": ""
             }
         ], 
@@ -186,12 +146,6 @@
                 "ECLASS_DESC": "Actor", 
                 "ECLASS_ID": 1, 
                 "RESOLVE": "Y"
-            }, 
-            {
-                "ECLASS_CODE": "TRAN", 
-                "ECLASS_DESC": "Transaction", 
-                "ECLASS_ID": 5, 
-                "RESOLVE": "N"
             }
         ], 
         "CFG_EFBOM": [
@@ -201,13 +155,6 @@
                 "FELEM_ID": 60, 
                 "FELEM_REQ": "Yes", 
                 "FTYPE_ID": 6
-            }, 
-            {
-                "EFCALL_ID": 15, 
-                "EXEC_ORDER": 1, 
-                "FELEM_ID": 37, 
-                "FELEM_REQ": "Yes", 
-                "FTYPE_ID": 53
             }
         ], 
         "CFG_EFCALL": [
@@ -216,12 +163,6 @@
                 "EFUNC_ID": 2, 
                 "EXEC_ORDER": 2, 
                 "FTYPE_ID": 1
-            }, 
-            {
-                "EFCALL_ID": 15, 
-                "EFUNC_ID": 5, 
-                "EXEC_ORDER": 1, 
-                "FTYPE_ID": 53
             }
         ], 
         "CFG_EFUNC": [
@@ -230,13 +171,6 @@
                 "EFUNC_CODE": "EXPRESS_BOM", 
                 "EFUNC_ID": 1, 
                 "FUNC_LIB": "g2func_lib", 
-                "FUNC_VER": "1"
-            }, 
-            {
-                "CONNECT_STR": "g2STBHasher", 
-                "EFUNC_CODE": "STB_HASHER", 
-                "EFUNC_ID": 6, 
-                "FUNC_LIB": "g2funclib", 
                 "FUNC_VER": "1"
             }
         ], 
@@ -247,13 +181,6 @@
                 "ERFRAG_DESC": "GROUPER_KEY", 
                 "ERFRAG_ID": 9, 
                 "ERFRAG_SOURCE": "./SCORES/GROUPER_KEY[./FULL_SCORE = 100]"
-            }, 
-            {
-                "ERFRAG_CODE": "DISABLE", 
-                "ERFRAG_DEPENDS": "", 
-                "ERFRAG_DESC": "DISABLE", 
-                "ERFRAG_ID": 999, 
-                "ERFRAG_SOURCE": "./FRAGMENT[./NO_NAME=666]"
             }
         ], 
         "CFG_ERRULE": [
@@ -268,18 +195,6 @@
                 "RELATE": 0, 
                 "RESOLVE": 1, 
                 "RTYPE_ID": 1
-            }, 
-            {
-                "DISQ_ERFRAG_CODE": "DIFF_EXCL", 
-                "ERRULE_CODE": "CNAME", 
-                "ERRULE_DESC": "CLOSE_NAME", 
-                "ERRULE_ID": 206, 
-                "ERRULE_TIER": 0, 
-                "QUAL_ERFRAG_CODE": "CLOSE_NAME", 
-                "REF_SCORE": 1, 
-                "RELATE": 0, 
-                "RESOLVE": 0, 
-                "RTYPE_ID": 4
             }
         ], 
         "CFG_ESCORE": [
@@ -288,12 +203,6 @@
                 "EXCLUSIVITY_SCORE": 5, 
                 "GROUPER_FEAT": 1, 
                 "RICHNESS_SCORE": 7
-            }, 
-            {
-                "BEHAVIOR_CODE": "FFE", 
-                "EXCLUSIVITY_SCORE": 0, 
-                "GROUPER_FEAT": 0, 
-                "RICHNESS_SCORE": 0
             }
         ], 
         "CFG_ETYPE": [
@@ -302,12 +211,6 @@
                 "ETYPE_CODE": "TEST", 
                 "ETYPE_DESC": "Test", 
                 "ETYPE_ID": 1
-            }, 
-            {
-                "ECLASS_ID": 1, 
-                "ETYPE_CODE": "GENERIC", 
-                "ETYPE_DESC": "Generic entity", 
-                "ETYPE_ID": 3
             }
         ], 
         "CFG_FBOM": [
@@ -318,14 +221,6 @@
                 "EXEC_ORDER": 1, 
                 "FELEM_ID": 2, 
                 "FTYPE_ID": 1
-            }, 
-            {
-                "DERIVED": 1, 
-                "DISPLAY_DELIM": "", 
-                "DISPLAY_LEVEL": 1, 
-                "EXEC_ORDER": 2, 
-                "FELEM_ID": 111, 
-                "FTYPE_ID": 58
             }
         ], 
         "CFG_FBOVR": [
@@ -336,24 +231,12 @@
                 "FTYPE_ID": 5, 
                 "FTYPE_STAB": 0, 
                 "UTYPE_CODE": "BUSINESS"
-            }, 
-            {
-                "ECLASS_ID": 0, 
-                "FTYPE_EXCL": 0, 
-                "FTYPE_FREQ": "F1", 
-                "FTYPE_ID": 6, 
-                "FTYPE_STAB": 0, 
-                "UTYPE_CODE": "MOBILE"
             }
         ], 
         "CFG_FCLASS": [
             {
                 "FCLASS_CODE": "PARTIAL_ID", 
                 "FCLASS_ID": 8
-            }, 
-            {
-                "FCLASS_CODE": "BIO_DATE", 
-                "FCLASS_ID": 2
             }
         ], 
         "CFG_FELEM": [
@@ -361,12 +244,6 @@
                 "DATA_TYPE": "STRING", 
                 "FELEM_CODE": "FULL_NAME", 
                 "FELEM_ID": 2, 
-                "TOKENIZE": 0
-            }, 
-            {
-                "DATA_TYPE": "NUMBER", 
-                "FELEM_CODE": "AMBIGUOUS_TIER", 
-                "FELEM_ID": 111, 
                 "TOKENIZE": 0
             }
         ], 
@@ -384,20 +261,6 @@
                 "RTYPE_ID": 0, 
                 "USED_FOR_CAND": 0, 
                 "VERSION": 1
-            }, 
-            {
-                "ANONYMIZE": 0, 
-                "DERIVED": 1, 
-                "FCLASS_ID": 9, 
-                "FTYPE_CODE": "AMBIGUOUS_ENTITY", 
-                "FTYPE_EXCL": 0, 
-                "FTYPE_FREQ": "FM", 
-                "FTYPE_ID": 58, 
-                "FTYPE_STAB": 0, 
-                "PERSIST_HISTORY": 0, 
-                "RTYPE_ID": 0, 
-                "USED_FOR_CAND": 0, 
-                "VERSION": 1
             }
         ], 
         "CFG_GENERIC_THRESHOLD": [
@@ -408,24 +271,12 @@
                 "GPLAN_ID": 1, 
                 "SCORING_CAP": -1, 
                 "SEND_TO_REDO": 0
-            }, 
-            {
-                "BEHAVIOR": "FVMES", 
-                "CANDIDATE_CAP": 20, 
-                "FTYPE_ID": 0, 
-                "GPLAN_ID": 2, 
-                "SCORING_CAP": -1, 
-                "SEND_TO_REDO": 0
             }
         ], 
         "CFG_GPLAN": [
             {
                 "GPLAN_CODE": "INGEST", 
                 "GPLAN_ID": 1
-            }, 
-            {
-                "GPLAN_CODE": "SEARCH-EXHAUSTIVE", 
-                "GPLAN_ID": 3
             }
         ], 
         "CFG_LENS": [
@@ -441,12 +292,6 @@
                 "RCLASS_CODE": "DERIVED", 
                 "RCLASS_DESC": "Derived", 
                 "RCLASS_ID": 1
-            }, 
-            {
-                "IS_DISCLOSED": "Y", 
-                "RCLASS_CODE": "DISCLOSED", 
-                "RCLASS_DESC": "Disclosed", 
-                "RCLASS_ID": 2
             }
         ], 
         "CFG_RTYPE": [
@@ -456,13 +301,6 @@
                 "REL_STRENGTH": 10, 
                 "RTYPE_CODE": "RESOLVED", 
                 "RTYPE_ID": 1
-            }, 
-            {
-                "BREAK_RES": 1, 
-                "RCLASS_ID": 2, 
-                "REL_STRENGTH": 10, 
-                "RTYPE_CODE": "TRANSACTS_WITH", 
-                "RTYPE_ID": 15
             }
         ], 
         "CFG_SFCALL": [
@@ -471,12 +309,6 @@
                 "FTYPE_ID": 1, 
                 "SFCALL_ID": 1, 
                 "SFUNC_ID": 1
-            }, 
-            {
-                "EXEC_ORDER": 1, 
-                "FTYPE_ID": 52, 
-                "SFCALL_ID": 12, 
-                "SFUNC_ID": 6
             }
         ], 
         "CFG_SFUNC": [
@@ -486,13 +318,6 @@
                 "FUNC_VER": "1", 
                 "SFUNC_CODE": "PARSE_NAME", 
                 "SFUNC_ID": 1
-            }, 
-            {
-                "CONNECT_STR": "g2ParseGEOLOC", 
-                "FUNC_LIB": "g2func_lib", 
-                "FUNC_VER": "1", 
-                "SFUNC_CODE": "STANDARDIZE_GEOLOC", 
-                "SFUNC_ID": 10
             }
         ], 
         "COMPATIBILITY_VERSION": {
