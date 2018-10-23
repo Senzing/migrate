@@ -9,15 +9,16 @@ To see all of the subcommands, run
 
 ```console
 $ ./migrate.py -h
-usage: migrate [-h]
-               {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config-1}
-               ...
+
+usage: migrate.py [-h]
+                  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config}
+                  ...
 
 Migrate Senzing configuration
 
 positional arguments:
-  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config-1}
-                        sub-command help
+  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config}
+                        Subcommands:
     add-dscr-etype      Add existing G2_CONFIG.CFG_DSCR and
                         G2_CONFIG.CFG_ETYPE to a new g2config.json template
     json-add-keys       Add missing JSON keys to a JSON file from a JSON
@@ -25,10 +26,11 @@ positional arguments:
     json-add-list-elements
                         Add elements to existing lists
     json-pretty-print   Sort and pretty print a file of JSON
-    migrate-g2config-1  Migrate g2config.json
+    migrate-g2config    Migrate g2config.json
 
 optional arguments:
   -h, --help            show this help message and exit
+
 ```
 
 To see the options for a subcommand, run commands like:
@@ -44,7 +46,7 @@ migrate.py json-pretty-print -h
     1. [json-add-keys](#json-add-keys)
     1. [json-add-list-elements](#json-add-list-elements)
     1. [json-pretty-print](#json-pretty-print)
-    1. [migrate-g2config-1](#migrate-g2config-1)
+    1. [migrate-g2config](#migrate-g2config)
 
 ## Sub-command details
 
@@ -100,7 +102,7 @@ migrate.py json-pretty-print -h
       --input-file /opt/senzing/g2/python/g2config.json
     ```
 
-### migrate-g2config-1
+### migrate-g2config
 
 1. What does it do?
     1. Start with the existing file contents.
@@ -110,7 +112,7 @@ migrate.py json-pretty-print -h
 1. Example invocation
 
     ```console
-    migrate.py migrate-g2config-1 \
+    migrate.py migrate-g2config \
       --existing-g2config-file /opt/senzing/g2/python/g2config.json \
       --template-g2config-file /opt/senzing/g2/data/g2config.json
     ```

@@ -57,8 +57,8 @@ list_element_unique_keys = {
 
 def get_parser():
     '''Parse commandline arguments.'''
-    parser = argparse.ArgumentParser(prog="migrate", description="Migrate Senzing configuration")
-    subparsers = parser.add_subparsers(dest='subcommand', help='sub-command help')
+    parser = argparse.ArgumentParser(prog="migrate.py", description="Migrate Senzing configuration")
+    subparsers = parser.add_subparsers(dest='subcommand', help='Subcommands:')
 
     subparser_1 = subparsers.add_parser('add-dscr-etype', help='Add existing G2_CONFIG.CFG_DSCR and G2_CONFIG.CFG_ETYPE to a new g2config.json template')
     subparser_1.add_argument("--existing-g2config-file", dest="existing_filename", required=True, help="Input file pathname for existing g2config.json configuration file")
@@ -79,7 +79,7 @@ def get_parser():
     subparser_4.add_argument("--input-file", dest="input_filename", required=True, help="Input file pathname")
     subparser_4.add_argument("--output-file", dest="output_filename", help="Output file pathname")
 
-    subparser_5 = subparsers.add_parser('migrate-g2config-1', help='Migrate g2config.json')
+    subparser_5 = subparsers.add_parser('migrate-g2config', help='Migrate g2config.json')
     subparser_5.add_argument("--existing-g2config-file", dest="existing_filename", required=True, help="Input file pathname for existing g2config.json configuration file")
     subparser_5.add_argument("--template-g2config-file", dest="template_filename", required=True, help="Input file pathname for the g2config.json configuration template")
     subparser_5.add_argument("--output-file", dest="output_filename", help="Output file pathname")
@@ -92,6 +92,8 @@ def get_parser():
 
 
 def keyed_needle_in_haystack(key, needle, haystack):
+    ''' Determine if a "needle" is in the "haystack". The needle
+        is determined by "key" as an index into list_element_unique_keys.'''
     result = False
     default_for_missing_value = "!no-key-value!"
 
@@ -146,7 +148,9 @@ def transform_add_keys(original_dictionary, update_dictionary):
 
 
 def transform_add_list_elements(original_dictionary, update_dictionary):
-    ''' Note: the original_directory is modified by this function. '''
+    ''' If a list element appears in the update_dictionary, but not in the
+        original_dictioary, add it to the original dictionary.
+        Note: the original_directory is modified by this function. '''
     for key, value in update_dictionary.items():
         if isinstance(value, collections.Mapping):
             original_dictionary[key] = transform_add_list_elements(original_dictionary.get(key, {}), value)
@@ -160,7 +164,9 @@ def transform_add_list_elements(original_dictionary, update_dictionary):
 
 
 def transform_add_list_unique_elements(original_dictionary, update_dictionary):
-    ''' Note: the original_directory is modified by this function. '''
+    ''' If a value or list element is in the update dictionary, but not in the
+        original_dictionary, determine if it should be added to the original_dictionary.
+        Note: the original_directory is modified by this function. '''
     for key, value in update_dictionary.items():
 
         # If a sub-dictionary, recurse.
@@ -361,17 +367,17 @@ def do_json_pretty_print(args):
     print("json-pretty-print output file: {0}".format(output_filename))
 
 # -----------------------------------------------------------------------------
-# migrate-g2config-1 subcommand
+# migrate-g2config subcommand
 # -----------------------------------------------------------------------------
 
 
-def do_migrate_g2config_1(args):
+def do_migrate_g2config(args):
 
     # Parse command line arguments.
 
     existing_filename = args.existing_filename
     template_filename = args.template_filename
-    output_filename = args.output_filename or "migrate-migrate-g2config-1-{0}.json".format(int(time.time()))
+    output_filename = args.output_filename or "migrate-migrate-g2config-{0}.json".format(int(time.time()))
 
     # Verify existence of files.
 
@@ -395,7 +401,6 @@ def do_migrate_g2config_1(args):
 
     # Do the transformation.
 
-#   result_dictionary = transform_add_keys(existing_dictionary, copy.deepcopy(template_dictionary))
     result_dictionary = transform_add_list_unique_elements(existing_dictionary, template_dictionary)
 
     # Write output.
@@ -405,7 +410,7 @@ def do_migrate_g2config_1(args):
 
     # Epilog.
 
-    print("migrate-g2config-1 output file: {0}".format(output_filename))
+    print("migrate-g2config output file: {0}".format(output_filename))
 
 # -----------------------------------------------------------------------------
 # Main
