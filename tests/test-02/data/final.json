@@ -1,0 +1,327 @@
+{
+    "G2_CONFIG": {
+        "CFG_ATTR": [
+            {
+                "ADVANCED": 0, 
+                "ATTR_CLASS": "IDENTIFIER", 
+                "ATTR_CODE": "ACCOUNT_DOMAIN", 
+                "ATTR_ID": 1312, 
+                "DEFAULT_VALUE": "", 
+                "FELEM_CODE": "ACCT_DOMAIN", 
+                "FELEM_REQ": "NO", 
+                "FTYPE_CODE": "ACCT_NUM", 
+                "INTERNAL": 0
+            }, 
+            {
+                "ADVANCED": 0, 
+                "ATTR_CLASS": "IDENTIFIER", 
+                "ATTR_CODE": "ACCOUNT_NUMBER", 
+                "ATTR_ID": 1311, 
+                "DEFAULT_VALUE": "", 
+                "FELEM_CODE": "ACCT_NUM", 
+                "FELEM_REQ": "YES", 
+                "FTYPE_CODE": "ACCT_NUM", 
+                "INTERNAL": 0
+            }
+        ], 
+        "CFG_CFBOM": [
+            {
+                "CFCALL_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 2, 
+                "FTYPE_ID": 1
+            }
+        ], 
+        "CFG_CFCALL": [
+            {
+                "CFCALL_ID": 1, 
+                "CFUNC_ID": 2, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 1
+            }
+        ], 
+        "CFG_CFRTN": [
+            {
+                "CFRTN_ID": 1, 
+                "CFUNC_ID": 1, 
+                "CFUNC_RTNVAL": "FULL_SCORE", 
+                "CLOSE_SCORE": 90, 
+                "EXEC_ORDER": 1, 
+                "LIKELY_SCORE": 80, 
+                "PLAUSIBLE_SCORE": 70, 
+                "SAME_SCORE": 100, 
+                "UN_LIKELY_SCORE": 60
+            }
+        ], 
+        "CFG_CFUNC": [
+            {
+                "ANON_SUPPORT": 1, 
+                "CFUNC_CODE": "STR_COMP", 
+                "CFUNC_ID": 1, 
+                "CONNECT_STR": "g2StringComp", 
+                "FUNC_LIB": "INT_LIB", 
+                "FUNC_VER": "1"
+            }
+        ], 
+        "CFG_DFBOM": [
+            {
+                "DFCALL_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 2, 
+                "FTYPE_ID": 1
+            }
+        ], 
+        "CFG_DFCALL": [
+            {
+                "DFCALL_ID": 1, 
+                "DFUNC_ID": 2, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 1
+            }
+        ], 
+        "CFG_DFUNC": [
+            {
+                "ANON_SUPPORT": 1, 
+                "CONNECT_STR": "g2StrictSubsetFelems", 
+                "DFUNC_CODE": "FELEM_STRICT_SUBSET", 
+                "DFUNC_ID": 1, 
+                "FUNC_LIB": "g2func_lib", 
+                "FUNC_VER": "1"
+            }, 
+            {
+                "ANON_SUPPORT": 1, 
+                "CONNECT_STR": "g2StrictSubsetTokens", 
+                "DFUNC_CODE": "TOKEN_STRICT_SUBSET", 
+                "DFUNC_ID": 2, 
+                "FUNC_LIB": "g2func_lib", 
+                "FUNC_VER": "1"
+            }
+        ], 
+        "CFG_DSRC": [
+            {
+                "CONVERSATIONAL": 0, 
+                "DSRC_CODE": "TEST", 
+                "DSRC_DESC": "Test", 
+                "DSRC_ID": 1, 
+                "DSRC_RELY": 1, 
+                "RETENTION_LEVEL": "Remember"
+            }, 
+            {
+                "CONVERSATIONAL": 1, 
+                "DSRC_CODE": "SEARCH", 
+                "DSRC_DESC": "Search", 
+                "DSRC_ID": 2, 
+                "DSRC_RELY": 1, 
+                "RETENTION_LEVEL": "Forget"
+            }
+        ], 
+        "CFG_EBOM": [
+            {
+                "ETYPE_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 16, 
+                "UTYPE_CODE": ""
+            }
+        ], 
+        "CFG_ECLASS": [
+            {
+                "ECLASS_CODE": "ACTOR", 
+                "ECLASS_DESC": "Actor", 
+                "ECLASS_ID": 1, 
+                "RESOLVE": "Y"
+            }
+        ], 
+        "CFG_EFBOM": [
+            {
+                "EFCALL_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 60, 
+                "FELEM_REQ": "Yes", 
+                "FTYPE_ID": 6
+            }
+        ], 
+        "CFG_EFCALL": [
+            {
+                "EFCALL_ID": 7, 
+                "EFUNC_ID": 2, 
+                "EXEC_ORDER": 2, 
+                "FTYPE_ID": 1
+            }
+        ], 
+        "CFG_EFUNC": [
+            {
+                "CONNECT_STR": "g2GenericHasher", 
+                "EFUNC_CODE": "EXPRESS_BOM", 
+                "EFUNC_ID": 1, 
+                "FUNC_LIB": "g2func_lib", 
+                "FUNC_VER": "1"
+            }
+        ], 
+        "CFG_ERFRAG": [
+            {
+                "ERFRAG_CODE": "GROUPER_KEY", 
+                "ERFRAG_DEPENDS": "", 
+                "ERFRAG_DESC": "GROUPER_KEY", 
+                "ERFRAG_ID": 9, 
+                "ERFRAG_SOURCE": "./SCORES/GROUPER_KEY[./FULL_SCORE = 100]"
+            }
+        ], 
+        "CFG_ERRULE": [
+            {
+                "DISQ_ERFRAG_CODE": "", 
+                "ERRULE_CODE": "GROUPER_KEY", 
+                "ERRULE_DESC": "GROUPER_KEY", 
+                "ERRULE_ID": 99, 
+                "ERRULE_TIER": 10, 
+                "QUAL_ERFRAG_CODE": "GROUPER_KEY", 
+                "REF_SCORE": 10, 
+                "RELATE": 0, 
+                "RESOLVE": 1, 
+                "RTYPE_ID": 1
+            }
+        ], 
+        "CFG_ESCORE": [
+            {
+                "BEHAVIOR_CODE": "FMES", 
+                "EXCLUSIVITY_SCORE": 5, 
+                "GROUPER_FEAT": 1, 
+                "RICHNESS_SCORE": 7
+            }
+        ], 
+        "CFG_ETYPE": [
+            {
+                "ECLASS_ID": 1, 
+                "ETYPE_CODE": "TEST", 
+                "ETYPE_DESC": "Test", 
+                "ETYPE_ID": 1
+            }, 
+            {
+                "ECLASS_ID": 1, 
+                "ETYPE_CODE": "GENERIC", 
+                "ETYPE_DESC": "Generic entity", 
+                "ETYPE_ID": 3
+            }
+        ], 
+        "CFG_FBOM": [
+            {
+                "DERIVED": 0, 
+                "DISPLAY_DELIM": "", 
+                "DISPLAY_LEVEL": 1, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 2, 
+                "FTYPE_ID": 1
+            }
+        ], 
+        "CFG_FBOVR": [
+            {
+                "ECLASS_ID": 0, 
+                "FTYPE_EXCL": 1, 
+                "FTYPE_FREQ": "FF", 
+                "FTYPE_ID": 5, 
+                "FTYPE_STAB": 0, 
+                "UTYPE_CODE": "BUSINESS"
+            }
+        ], 
+        "CFG_FCLASS": [
+            {
+                "FCLASS_CODE": "PARTIAL_ID", 
+                "FCLASS_ID": 8
+            }
+        ], 
+        "CFG_FELEM": [
+            {
+                "DATA_TYPE": "STRING", 
+                "FELEM_CODE": "FULL_NAME", 
+                "FELEM_ID": 2, 
+                "TOKENIZE": 0
+            }
+        ], 
+        "CFG_FTYPE": [
+            {
+                "ANONYMIZE": 0, 
+                "DERIVED": 0, 
+                "FCLASS_ID": 1, 
+                "FTYPE_CODE": "NAME", 
+                "FTYPE_EXCL": 0, 
+                "FTYPE_FREQ": "NAME", 
+                "FTYPE_ID": 1, 
+                "FTYPE_STAB": 0, 
+                "PERSIST_HISTORY": 1, 
+                "RTYPE_ID": 0, 
+                "USED_FOR_CAND": 0, 
+                "VERSION": 1
+            }
+        ], 
+        "CFG_GENERIC_THRESHOLD": [
+            {
+                "BEHAVIOR": "NAME", 
+                "CANDIDATE_CAP": 10, 
+                "FTYPE_ID": 0, 
+                "GPLAN_ID": 1, 
+                "SCORING_CAP": -1, 
+                "SEND_TO_REDO": 0
+            }
+        ], 
+        "CFG_GPLAN": [
+            {
+                "GPLAN_CODE": "INGEST", 
+                "GPLAN_ID": 1
+            }
+        ], 
+        "CFG_LENS": [
+            {
+                "LENS_CODE": "DEFAULT", 
+                "LENS_DESC": "Default lens", 
+                "LENS_ID": 1
+            }
+        ], 
+        "CFG_RCLASS": [
+            {
+                "IS_DISCLOSED": "N", 
+                "RCLASS_CODE": "DERIVED", 
+                "RCLASS_DESC": "Derived", 
+                "RCLASS_ID": 1
+            }
+        ], 
+        "CFG_RTYPE": [
+            {
+                "BREAK_RES": 0, 
+                "RCLASS_ID": 1, 
+                "REL_STRENGTH": 10, 
+                "RTYPE_CODE": "RESOLVED", 
+                "RTYPE_ID": 1
+            }
+        ], 
+        "CFG_SFCALL": [
+            {
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 1, 
+                "SFCALL_ID": 1, 
+                "SFUNC_ID": 1
+            }
+        ], 
+        "CFG_SFUNC": [
+            {
+                "CONNECT_STR": "g2ParseName", 
+                "FUNC_LIB": "g2func_lib", 
+                "FUNC_VER": "1", 
+                "SFUNC_CODE": "PARSE_NAME", 
+                "SFUNC_ID": 1
+            }
+        ], 
+        "COMPATIBILITY_VERSION": {
+            "CONFIG_VERSION": 2
+        }, 
+        "SYS_OOM": [
+            {
+                "FTYPE_ID": 0, 
+                "LENS_ID": 0, 
+                "NEXT_THRESH": 1000, 
+                "OOM_LEVEL": "SYSDEFAULT", 
+                "OOM_TYPE": "RF", 
+                "THRESH1_CNT": 100, 
+                "THRESH1_OOM": 10
+            }
+        ]
+    }
+}

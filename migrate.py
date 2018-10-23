@@ -12,6 +12,44 @@ import os.path
 import sys
 import time
 
+# This is a dictionary of a list of lists.  Each inner list specifies
+# JSON keys whose values, together, must be unique.
+
+list_element_unique_keys = {
+    "CFG_ATTR": [["ATTR_CODE"]],
+    "CFG_CFBOM": [["CFCALL_ID", "FTYPE_ID", "FELEM_ID"]],
+    "CFG_CFCALL": [["CFCALL_ID"], ["FTYPE_ID", "CFUNC_ID"]],
+    "CFG_CFRTN": [["CFRTN_ID"], ["CFUNC_ID", "CFUNC_RTNVAL"]],
+    "CFG_CFUNC": [["CFUNC_ID"], ["CFUNC_CODE"]],
+    "CFG_DFBOM": [["DFCALL_ID", "FTYPE_ID", "FELEM_ID"]],
+    "CFG_DFCALL": [["DFCALL_ID"]],
+    "CFG_DFUNC": [["DFUNC_ID"], ["DFUNC_CODE"]],
+    "CFG_DSRC": [["DSRC_ID"], ["DSRC_CODE"]],
+    "CFG_EBOM": [["ETYPE_ID", "EXEC_ORDER"]],
+    "CFG_ECLASS": [["ECLASS_ID"], ["ECLASS_CODE"]],
+    "CFG_EFBOM": [["EFCALL_ID", "FTYPE_ID", "FELEM_ID"]],
+    "CFG_EFCALL": [["EFCALL_ID"]],
+    "CFG_EFUNC": [["EFUNC_ID"], ["EFUNC_CODE"]],
+    "CFG_ERFRAG": [["ERFRAG_ID"], ["ERFRAG_CODE"]],
+    "CFG_ERRULE": [["ERRULE_ID"], ["ERRULE_CODE"]],
+    "CFG_ESCORE": [["BEHAVIOR_CODE"]],
+    "CFG_ETYPE": [["ETYPE_ID"], ["ETYPE_CODE"]],
+    "CFG_FBOM": [["FTYPE_ID", "FELEM_ID"]],
+    "CFG_FBOVR": [["FTYPE_ID", "ECLASS_ID", "UTYPE_CODE"]],
+    "CFG_FCLASS": [["FCLASS_ID"], ["FCLASS_CODE"]],
+    "CFG_FELEM": [["FELEM_ID"], ["FELEM_CODE"]],
+    "CFG_FTYPE": [["FTYPE_ID"], ["FTYPE_CODE"]],
+    "CFG_GENERIC_THRESHOLD": [["GPLAN_ID", "BEHAVIOR", "FTYPE_ID"]],
+    "CFG_GPLAN": [["GPLAN_ID"], ["GPLAN_CODE"]],
+    "CFG_LENS": [["LENS_ID"], ["LENS_CODE"]],
+    "CFG_RCLASS": [["RCLASS_ID"], ["RCLASS_CODE"]],
+    "CFG_RTYPE": [["RTYPE_ID"], ["RTYPE_CODE"]],
+    "CFG_SFCALL": [["SFCALL_ID"], ["FTYPE_ID", "SFUNC_ID"]],
+    "CFG_SFUNC": [["SFUNC_ID"], ["SFUNC_CODE"]],
+    "COMPATIBILITY_VERSION": [],
+    "SYS_OOM": [["OOM_TYPE", "OOM_LEVEL", "LENS_ID", "LIB_FEAT_ID", "FELEM_ID", "LIB_FELEM_ID"]]
+}
+
 # -----------------------------------------------------------------------------
 # Define argument parser
 # -----------------------------------------------------------------------------
@@ -19,8 +57,8 @@ import time
 
 def get_parser():
     '''Parse commandline arguments.'''
-    parser = argparse.ArgumentParser(prog="migrate", description="Migrate Senzing configuration")
-    subparsers = parser.add_subparsers(dest='subcommand', help='sub-command help')
+    parser = argparse.ArgumentParser(prog="migrate.py", description="Migrate Senzing configuration")
+    subparsers = parser.add_subparsers(dest='subcommand', help='Subcommands:')
 
     subparser_1 = subparsers.add_parser('add-dscr-etype', help='Add existing G2_CONFIG.CFG_DSCR and G2_CONFIG.CFG_ETYPE to a new g2config.json template')
     subparser_1.add_argument("--existing-g2config-file", dest="existing_filename", required=True, help="Input file pathname for existing g2config.json configuration file")
@@ -41,7 +79,7 @@ def get_parser():
     subparser_4.add_argument("--input-file", dest="input_filename", required=True, help="Input file pathname")
     subparser_4.add_argument("--output-file", dest="output_filename", help="Output file pathname")
 
-    subparser_5 = subparsers.add_parser('migrate-g2config-1', help='Migrate g2config.json')
+    subparser_5 = subparsers.add_parser('migrate-g2config', help='Migrate g2config.json')
     subparser_5.add_argument("--existing-g2config-file", dest="existing_filename", required=True, help="Input file pathname for existing g2config.json configuration file")
     subparser_5.add_argument("--template-g2config-file", dest="template_filename", required=True, help="Input file pathname for the g2config.json configuration template")
     subparser_5.add_argument("--output-file", dest="output_filename", help="Output file pathname")
@@ -49,12 +87,46 @@ def get_parser():
     return parser
 
 # -----------------------------------------------------------------------------
+# Utility functions
+# -----------------------------------------------------------------------------
+
+
+def keyed_needle_in_haystack(key, needle, haystack):
+    ''' Determine if a "needle" is in the "haystack". The needle
+        is determined by "key" as an index into list_element_unique_keys.'''
+    result = False
+    default_for_missing_value = "!no-key-value!"
+
+    # Get the keys that represent the "compound unique key".
+
+    unique_keys_list = list_element_unique_keys.get(key, [])
+    for unique_keys in unique_keys_list:
+
+        # Go through the haystack to see if anything matches the "needle".
+
+        for haystack_element in haystack:
+
+            # Determine if an element from the haystack matches the needle.
+            # Assume it matches until a difference is found.
+
+            matches = True
+            for unique_key in unique_keys:
+                unique_key_value = needle.get(unique_key, default_for_missing_value)
+                haystack_element_key_value = haystack_element.get(unique_key, default_for_missing_value)
+                if unique_key_value != haystack_element_key_value:
+                    matches = False
+            if matches:
+                return True
+
+    return result
+
+# -----------------------------------------------------------------------------
 # transform_* functions
 #   Common function signature: result_dictionary = transform_XXX(original, update)
 # -----------------------------------------------------------------------------
 
 
-def transform_add_escr_etype(original_dictionary, update_dictionary):
+def transform_add_dsrc_etype(original_dictionary, update_dictionary):
     ''' Insert G2_CONFIG.CFG_DSRC and G2_CONFIG.CFG_ETYPE into original dictionary.'''
     result_dictionary = copy.deepcopy(original_dictionary)
     result_dictionary["G2_CONFIG"]["CFG_DSRC"] = update_dictionary.get("G2_CONFIG", {}).get("CFG_DSRC", {})
@@ -76,7 +148,9 @@ def transform_add_keys(original_dictionary, update_dictionary):
 
 
 def transform_add_list_elements(original_dictionary, update_dictionary):
-    ''' Note: the original_directory is modified by this function. '''
+    ''' If a list element appears in the update_dictionary, but not in the
+        original_dictioary, add it to the original dictionary.
+        Note: the original_directory is modified by this function. '''
     for key, value in update_dictionary.items():
         if isinstance(value, collections.Mapping):
             original_dictionary[key] = transform_add_list_elements(original_dictionary.get(key, {}), value)
@@ -89,16 +163,33 @@ def transform_add_list_elements(original_dictionary, update_dictionary):
     return original_dictionary
 
 
-def transform_replace_values(original_dictionary, update_dictionary):
-    ''' The dictionary returned is the original_dictionary
-        with values updated from the update_dictionary.
-        Note: update_dictionary is modified by this function. '''
-    for key, value in original_dictionary.items():
+def transform_add_list_unique_elements(original_dictionary, update_dictionary):
+    ''' If a value or list element is in the update dictionary, but not in the
+        original_dictionary, determine if it should be added to the original_dictionary.
+        Note: the original_directory is modified by this function. '''
+    for key, value in update_dictionary.items():
+
+        # If a sub-dictionary, recurse.
+
         if isinstance(value, collections.Mapping):
-            update_dictionary[key] = transform_add_keys(update_dictionary.get(key, {}), value)
+            original_dictionary[key] = transform_add_list_unique_elements(original_dictionary.get(key, {}), value)
+
+        # If a list, add missing elements for unique compound keys.
+
+        elif isinstance(value, list):
+            if key not in original_dictionary:
+                original_dictionary[key] = []
+            for list_element in value:
+                if list_element not in original_dictionary[key]:
+                    if not keyed_needle_in_haystack(key, list_element, original_dictionary[key]):
+                        original_dictionary[key].append(list_element)
+
+        # Else fill in any missing keys.  Do not over-write values.
+
         else:
-            update_dictionary[key] = value
-    return update_dictionary
+            if key not in original_dictionary:
+                original_dictionary[key] = value
+    return original_dictionary
 
 # -----------------------------------------------------------------------------
 # do_* functions
@@ -140,7 +231,7 @@ def do_add_dscr_etype(args):
 
     # Do the transformation.
 
-    result_dictionary = transform_add_escr_etype(existing_dictionary, template_dictionary)
+    result_dictionary = transform_add_dsrc_etype(existing_dictionary, template_dictionary)
 
     # Write output.
 
@@ -276,24 +367,17 @@ def do_json_pretty_print(args):
     print("json-pretty-print output file: {0}".format(output_filename))
 
 # -----------------------------------------------------------------------------
-# migrate-g2config-1 subcommand
+# migrate-g2config subcommand
 # -----------------------------------------------------------------------------
 
 
-def do_migrate_g2config_1(args):
-    
-    # Short-cut exit
-
-    print("The results of this subcommand are not accurate.")
-    print("See https://github.com/Senzing/migrate/issues/3")
-    print("Exiting early.")
-    sys.exit(1)
+def do_migrate_g2config(args):
 
     # Parse command line arguments.
 
     existing_filename = args.existing_filename
     template_filename = args.template_filename
-    output_filename = args.output_filename or "migrate-migrate-g2config-1-{0}.json".format(int(time.time()))
+    output_filename = args.output_filename or "migrate-migrate-g2config-{0}.json".format(int(time.time()))
 
     # Verify existence of files.
 
@@ -317,8 +401,7 @@ def do_migrate_g2config_1(args):
 
     # Do the transformation.
 
-    result_dictionary = transform_add_keys(existing_dictionary, copy.deepcopy(template_dictionary))
-    result_dictionary = transform_add_list_elements(result_dictionary, template_dictionary)
+    result_dictionary = transform_add_list_unique_elements(existing_dictionary, template_dictionary)
 
     # Write output.
 
@@ -327,7 +410,7 @@ def do_migrate_g2config_1(args):
 
     # Epilog.
 
-    print("migrate-g2config-1 output file: {0}".format(output_filename))
+    print("migrate-g2config output file: {0}".format(output_filename))
 
 # -----------------------------------------------------------------------------
 # Main
