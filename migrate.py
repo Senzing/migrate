@@ -216,6 +216,12 @@ def log_directory_diff(directory_diff):
     for sub_directory_diff in directory_diff.subdirs.values():
         log_directory_diff(sub_directory_diff)
 
+
+def log_file(filename):
+    lines = [line.strip() for line in open(filename)]
+    for line in lines:
+        logging.info("{0}: {1}".format(filename, line))
+
 # -----------------------------------------------------------------------------
 # log_* functions
 #   Common function signature: log_XXX(files_list, old_dir, new_dir)
@@ -261,7 +267,11 @@ def propose_diff_and_copy_directories_from_old(directories_list, old_directory, 
 
 def propose_diff_and_copy_files_from_old(files_list, old_directory, new_directory, proposed_directory):
     for old, new, proposed in files_from_list(files_list, old_directory, new_directory, proposed_directory):
-        if not filecmp.cmp(old, new, shallow=False):
+        if not os.path.exists(old):
+            pass
+        elif not os.path.exists(new):
+            copy_file(old, proposed)
+        elif not filecmp.cmp(old, new, shallow=False):
             copy_file(old, proposed)
 
 
@@ -626,6 +636,11 @@ def do_migrate_opt_senzing(args):
     if not os.path.exists(proposed_directory):
         os.makedirs(proposed_directory)
 
+    # Log versions
+
+    log_file("{0}/g2/data/g2BuildVersion.txt".format(old_directory))
+    log_file("{0}/g2/data/g2BuildVersion.txt".format(new_directory))
+
     # Log differences
 
     log_directory_list = [["{0}", "{1}", "{2}"]]
@@ -633,11 +648,8 @@ def do_migrate_opt_senzing(args):
 
     # Directory proposals.
 
-    copy_directories_list = [
-        ["{0}/g2/bin", "{1}/g2/bin", "{2}/g2/bin"]
-    ]
-
-    propose_copy_directories_from_old(copy_directories_list, old_directory, new_directory, proposed_directory)
+#   copy_directories_list = [ ]
+#   propose_copy_directories_from_old(copy_directories_list, old_directory, new_directory, proposed_directory)
 
     diff_directories_list = [
         ["{0}/g2/python/demo", "{1}/g2/python/demo", "{2}/g2/python/demo"]
@@ -647,23 +659,15 @@ def do_migrate_opt_senzing(args):
 
     # File proposals
 
-    copy_files_list = [
-        ["{0}/g2/python/G2Module.ini",
-         "{1}/g2/python/G2Module.ini",
-         "{2}/g2/python/G2Module.ini"],
-        ["{0}/g2/python/G2Project.ini",
-         "{1}/g2/python/G2Project.ini",
-         "{2}/g2/python/G2Project.ini"
-        ]
-    ]
-
-    propose_copy_files_from_old(copy_files_list, old_directory, new_directory, proposed_directory)
+#   copy_files_list = []
+#   propose_copy_files_from_old(copy_files_list, old_directory, new_directory, proposed_directory)
 
     diff_files_list = [
-        ["{0}/g2/sqldb/G2C.db",
-         "{0}/g2/data/G2C.db",
-         "{2}/g2/sqldb/G2C.db"
-        ]
+        ["{0}/g2/setupEnv", "{1}/g2/setupEnv", "{2}/g2/setupEnv"],
+        ["{0}/g2/python/G2Module.ini", "{1}/g2/python/G2Module.ini", "{2}/g2/python/G2Module.ini"],
+        ["{0}/g2/python/G2Project.ini", "{1}/g2/python/G2Project.ini", "{2}/g2/python/G2Project.ini"],
+        ["{0}/g2/data/g2.lic", "{1}/g2/data/g2.lic", "{2}/g2/data/g2.lic"],
+        ["{0}/g2/sqldb/G2C.db", "{0}/g2/data/G2C.db", "{2}/g2/sqldb/G2C.db"]
     ]
 
     propose_diff_and_copy_files_from_old(diff_files_list, old_directory, new_directory, proposed_directory)
@@ -671,6 +675,10 @@ def do_migrate_opt_senzing(args):
     # File specific proposals
 
     propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, proposed_directory)
+
+    # Epilog.
+
+    logging.info("Proposal: {0}.".format(proposed_directory))
 
 # -----------------------------------------------------------------------------
 # Main
