@@ -200,14 +200,6 @@ def files_from_list(files_list, old_directory, new_directory, proposed_directory
 def log_directory_diff(directory_diff):
     ''' Recursively log file difference found.'''
 
-    for name in directory_diff.left_only:
-        filename = "{0}/{1}".format(directory_diff.left, name)
-        logging.info("Old-File: {}".format(filename))
-
-    for name in directory_diff.right_only:
-        filename = "{0}/{1}".format(directory_diff.right, name)
-        logging.info("New-File: {}".format(filename))
-
     for name in directory_diff.diff_files:
         old_filename = "{0}/{1}".format(directory_diff.left, name)
         new_filename = "{0}/{1}".format(directory_diff.right, name)
@@ -217,10 +209,32 @@ def log_directory_diff(directory_diff):
         log_directory_diff(sub_directory_diff)
 
 
-def log_file(filename):
+def log_directory_new(directory_diff):
+    ''' Recursively log file difference found.'''
+
+    for name in directory_diff.right_only:
+        filename = "{0}/{1}".format(directory_diff.right, name)
+        logging.info("New-File: {}".format(filename))
+
+    for sub_directory_diff in directory_diff.subdirs.values():
+        log_directory_new(sub_directory_diff)
+
+
+def log_directory_old(directory_diff):
+    ''' Recursively log file difference found.'''
+
+    for name in directory_diff.left_only:
+        filename = "{0}/{1}".format(directory_diff.left, name)
+        logging.info("Old-File: {}".format(filename))
+
+    for sub_directory_diff in directory_diff.subdirs.values():
+        log_directory_old(sub_directory_diff)
+
+
+def log_file(filename, title):
     lines = [line.strip() for line in open(filename)]
     for line in lines:
-        logging.info("{0}: {1}".format(filename, line))
+        logging.info("{0}: {1}: {2}".format(title, filename, line))
 
 # -----------------------------------------------------------------------------
 # log_* functions
@@ -238,6 +252,8 @@ def log_directory_differences(directories_list, old_directory, new_directory, pr
     for old, new, proposed in files_from_list(directories_list, old_directory, new_directory, proposed_directory):
         if os.path.exists(old):
             directory_diff = filecmp.dircmp(old, new)
+            log_directory_old(directory_diff)
+            log_directory_new(directory_diff)
             log_directory_diff(directory_diff)
 
 # -----------------------------------------------------------------------------
@@ -638,8 +654,8 @@ def do_migrate_opt_senzing(args):
 
     # Log versions
 
-    log_file("{0}/g2/data/g2BuildVersion.txt".format(old_directory))
-    log_file("{0}/g2/data/g2BuildVersion.txt".format(new_directory))
+    log_file("{0}/g2/data/g2BuildVersion.txt".format(old_directory), "Old--Dir")
+    log_file("{0}/g2/data/g2BuildVersion.txt".format(new_directory), "New--Dir")
 
     # Log differences
 
@@ -689,7 +705,7 @@ if __name__ == "__main__":
 
     # Configure logging.
 
-    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.DEBUG)
 
     # Parse the command line arguments.
 
