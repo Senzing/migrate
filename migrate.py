@@ -7,8 +7,13 @@
 import argparse
 import collections
 import copy
+import filecmp
 import json
+import logging
+import os
 import os.path
+import re
+from shutil import copyfile, copytree
 import sys
 import time
 
@@ -50,6 +55,8 @@ list_element_unique_keys = {
     "SYS_OOM": [["OOM_TYPE", "OOM_LEVEL", "LENS_ID", "LIB_FEAT_ID", "FELEM_ID", "LIB_FELEM_ID"]]
 }
 
+log_file_diff_template = "DiffFile: {0} {1}"
+
 # -----------------------------------------------------------------------------
 # Define argument parser
 # -----------------------------------------------------------------------------
@@ -84,11 +91,62 @@ def get_parser():
     subparser_5.add_argument("--template-g2config-file", dest="template_filename", required=True, help="Input file pathname for the g2config.json configuration template")
     subparser_5.add_argument("--output-file", dest="output_filename", help="Output file pathname")
 
+    subparser_6 = subparsers.add_parser('migrate-opt-senzing', help='Migrate /opt/senzing directory by creating a proposal')
+    subparser_6.add_argument("--old-opt-senzing", dest="old_senzing_directory", required=True, help="Path to existing /opt/senzing")
+    subparser_6.add_argument("--new-opt-senzing", dest="new_senzing_directory", required=True, help="Path to newly created /opt/new-senzing")
+    subparser_6.add_argument("--proposed-opt-senzing", dest="proposed_senzing_directory", help="Path to proposed /opt/proposed-senzing")
+
     return parser
 
 # -----------------------------------------------------------------------------
 # Utility functions
 # -----------------------------------------------------------------------------
+
+
+def copy_directory(old, new):
+    ''' Copy a complete directory.'''
+    if os.path.exists(old):
+        logging.info("CopyTree: {0} {1}".format(old, new))
+        copytree(old, new)
+    else:
+        logging.info("Directory {0} does not exist".format(old))
+
+
+def copy_file(old_file, new_file):
+    ''' Copy a file.  Create sub-directories if needed.'''
+
+    if os.path.exists(old_file):
+
+        # Ensure directory exists for proposed file.
+
+        new_file_directory = os.path.dirname(new_file)
+        if not os.path.exists(new_file_directory):
+            os.makedirs(new_file_directory)
+
+        # Copy file.
+
+        logging.info("CopyFile: {0} {1}".format(old_file, new_file))
+
+        copyfile(old_file, new_file)
+    else:
+        logging.info("File {0} does not exist".format(old_file))
+
+
+def handle_directory_diff(directory_diff, old_directory, new_directory, proposed_directory):
+
+    # Copy old file into the proposed directory.
+
+    merged_lists = directory_diff.diff_files + directory_diff.left_only
+    for name in merged_lists:
+        old_file = "{0}/{1}".format(directory_diff.left, name)
+        new_path = re.sub(new_directory, '', directory_diff.right)
+        new_file = "{0}/{1}{2}".format(proposed_directory, new_path, name)
+        copy_file(old_file, new_file)
+
+    # Recurse into next level of subdirectories.
+
+    for sub_directory_diff in directory_diff.subdirs.values():
+        handle_directory_diff(sub_directory_diff, old_directory, new_directory, proposed_directory)
 
 
 def keyed_needle_in_haystack(key, needle, haystack):
@@ -119,6 +177,136 @@ def keyed_needle_in_haystack(key, needle, haystack):
                 return True
 
     return result
+
+
+def safe_list_get (the_list, list_index, default):
+    ''' Since a list does not have a list.get() function,
+        this is a safe alternative. '''
+    try:
+        return the_list[list_index]
+    except IndexError:
+        return default
+
+
+def files_from_list(files_list, old_directory, new_directory, proposed_directory):
+    ''' This is a python generator. '''
+    for files in files_list:
+        old = safe_list_get(files, 0, "").format(old_directory, new_directory, proposed_directory)
+        new = safe_list_get(files, 1, "").format(old_directory, new_directory, proposed_directory)
+        proposed = safe_list_get(files, 2, "").format(old_directory, new_directory, proposed_directory)
+        yield old, new, proposed
+
+
+def log_directory_diff(directory_diff):
+    ''' Recursively log file difference found.'''
+
+    for name in directory_diff.left_only:
+        filename = "{0}/{1}".format(directory_diff.left, name)
+        logging.info("Old-File: {}".format(filename))
+
+    for name in directory_diff.right_only:
+        filename = "{0}/{1}".format(directory_diff.right, name)
+        logging.info("New-File: {}".format(filename))
+
+    for name in directory_diff.diff_files:
+        old_filename = "{0}/{1}".format(directory_diff.left, name)
+        new_filename = "{0}/{1}".format(directory_diff.right, name)
+        logging.info(log_file_diff_template.format(old_filename, new_filename))
+
+    for sub_directory_diff in directory_diff.subdirs.values():
+        log_directory_diff(sub_directory_diff)
+
+# -----------------------------------------------------------------------------
+# log_* functions
+#   Common function signature: log_XXX(files_list, old_dir, new_dir)
+# -----------------------------------------------------------------------------
+
+
+def log_file_differences(files_list, old_directory, new_directory):
+    for old, new, _ in files_from_list(files_list, old_directory, new_directory, "") :
+        if not filecmp.cmp(old, new, shallow=False):
+            logging.info(log_file_diff_template.format(old, new))
+
+
+def log_directory_differences(directories_list, old_directory, new_directory, proposed_directory):
+    for old, new, proposed in files_from_list(directories_list, old_directory, new_directory, proposed_directory):
+        if os.path.exists(old):
+            directory_diff = filecmp.dircmp(old, new)
+            log_directory_diff(directory_diff)
+
+# -----------------------------------------------------------------------------
+# propose_* functions
+#   Common function signature: propose_XXX(list, old_dir, new_dir, propose_dir)
+# -----------------------------------------------------------------------------
+
+
+def propose_copy_directories_from_old(directories_list, old_directory, new_directory, proposed_directory):
+    for old, new, proposed in files_from_list(directories_list, old_directory, new_directory, proposed_directory):
+        copy_directory(old, proposed)
+
+
+def propose_copy_files_from_old(files_list, old_directory, new_directory, proposed_directory):
+    for old, new, proposed in files_from_list(files_list, old_directory, new_directory, proposed_directory):
+        copy_file(old, proposed)
+
+
+def propose_diff_and_copy_directories_from_old(directories_list, old_directory, new_directory, proposed_directory):
+    for old, new, proposed in files_from_list(directories_list, old_directory, new_directory, proposed_directory):
+        if os.path.exists(old):
+            directory_diff = filecmp.dircmp(old, new)
+            handle_directory_diff(directory_diff, old, new, proposed)
+        else:
+            logging.info("Directory {0} does not exist".format(old))
+
+
+def propose_diff_and_copy_files_from_old(files_list, old_directory, new_directory, proposed_directory):
+    for old, new, proposed in files_from_list(files_list, old_directory, new_directory, proposed_directory):
+        if not filecmp.cmp(old, new, shallow=False):
+            copy_file(old, proposed)
+
+
+def propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, proposed_directory):
+
+    # Construct filenames.
+
+    existing_filename = "{0}/g2/python/g2config.json".format(old_directory)
+    template_filename = "{0}/g2/data/g2config.json".format(new_directory)
+    output_filename = "{0}/g2/python/g2config.json".format(proposed_directory)
+
+    # Create output directory.
+
+    output_directory = "{0}/g2/python".format(proposed_directory)
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    # Verify existence of files.
+
+    if not os.path.isfile(existing_filename):
+        print("Error: {0} does not exist".format(existing_filename))
+        sys.exit(1)
+
+    if not os.path.isfile(template_filename):
+        print("Error: {0} does not exist".format(template_filename))
+        sys.exit(1)
+
+    # Load the existing configuration.
+
+    with open(existing_filename) as existing_file:
+        existing_dictionary = json.load(existing_file)
+
+    # Load the new configuration template.
+
+    with open(template_filename) as template_file:
+        template_dictionary = json.load(template_file)
+
+    # Do the transformation.
+
+    result_dictionary = transform_add_list_unique_elements(existing_dictionary, template_dictionary)
+
+    # Write output.
+
+    with open(output_filename, "w") as output_file:
+        json.dump(result_dictionary, output_file, sort_keys=True, indent=4)
 
 # -----------------------------------------------------------------------------
 # transform_* functions
@@ -413,11 +601,87 @@ def do_migrate_g2config(args):
     print("migrate-g2config output file: {0}".format(output_filename))
 
 # -----------------------------------------------------------------------------
+# migrate-opt-senzing
+# -----------------------------------------------------------------------------
+
+
+def do_migrate_opt_senzing(args):
+
+    # Parse command line arguments.
+
+    old_directory = args.old_senzing_directory
+    new_directory = args.new_senzing_directory
+    proposed_directory = args.proposed_senzing_directory or "{0}/proposed-opt-senzing-{1}".format(os.getcwd(), int(time.time()))
+
+    # Verify existence of directories.
+
+    if not os.path.isdir(old_directory):
+        print("Error: --old-opt-senzing {0} does not exist".format(old_directory))
+        sys.exit(1)
+
+    if not os.path.isdir(new_directory):
+        print("Error: --new-opt-senzing {0} does not exist".format(new_directory))
+        sys.exit(1)
+
+    if not os.path.exists(proposed_directory):
+        os.makedirs(proposed_directory)
+
+    # Log differences
+
+    log_directory_list = [["{0}", "{1}", "{2}"]]
+    log_directory_differences(log_directory_list, old_directory, new_directory, proposed_directory)
+
+    # Directory proposals.
+
+    copy_directories_list = [
+        ["{0}/g2/bin", "{1}/g2/bin", "{2}/g2/bin"]
+    ]
+
+    propose_copy_directories_from_old(copy_directories_list, old_directory, new_directory, proposed_directory)
+
+    diff_directories_list = [
+        ["{0}/g2/python/demo", "{1}/g2/python/demo", "{2}/g2/python/demo"]
+    ]
+
+    propose_diff_and_copy_directories_from_old(diff_directories_list, old_directory, new_directory, proposed_directory)
+
+    # File proposals
+
+    copy_files_list = [
+        ["{0}/g2/python/G2Module.ini",
+         "{1}/g2/python/G2Module.ini",
+         "{2}/g2/python/G2Module.ini"],
+        ["{0}/g2/python/G2Project.ini",
+         "{1}/g2/python/G2Project.ini",
+         "{2}/g2/python/G2Project.ini"
+        ]
+    ]
+
+    propose_copy_files_from_old(copy_files_list, old_directory, new_directory, proposed_directory)
+
+    diff_files_list = [
+        ["{0}/g2/sqldb/G2C.db",
+         "{0}/g2/data/G2C.db",
+         "{2}/g2/sqldb/G2C.db"
+        ]
+    ]
+
+    propose_diff_and_copy_files_from_old(diff_files_list, old_directory, new_directory, proposed_directory)
+
+    # File specific proposals
+
+    propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, proposed_directory)
+
+# -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
 
 
 if __name__ == "__main__":
+
+    # Configure logging.
+
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
 
     # Parse the command line arguments.
 
