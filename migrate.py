@@ -55,7 +55,10 @@ list_element_unique_keys = {
     "SYS_OOM": [["OOM_TYPE", "OOM_LEVEL", "LENS_ID", "LIB_FEAT_ID", "FELEM_ID", "LIB_FELEM_ID"]]
 }
 
-log_file_diff_template = "DiffFile: {0} {1}"
+log_file_diff_template = "changed: {0} {1}"
+entry_template = "migrate.py {0}"
+exit_template = "migrate.py {0} output: {1}"
+
 
 # -----------------------------------------------------------------------------
 # Define argument parser
@@ -104,17 +107,16 @@ def get_parser():
 
 
 def copy_directory(old, new):
-    ''' Copy a complete directory.'''
+    '''Copy a complete directory.'''
     if os.path.exists(old):
-        logging.info("CopyTree: {0} {1}".format(old, new))
+        logging.info("copy-tree: {0} {1}".format(old, new))
         copytree(old, new)
     else:
-        logging.info("Directory {0} does not exist".format(old))
+        logging.error("Directory {0} does not exist".format(old))
 
 
 def copy_file(old_file, new_file):
-    ''' Copy a file.  Create sub-directories if needed.'''
-
+    '''Copy a file.  Create sub-directories if needed.'''
     if os.path.exists(old_file):
 
         # Ensure directory exists for proposed file.
@@ -125,14 +127,17 @@ def copy_file(old_file, new_file):
 
         # Copy file.
 
-        logging.info("CopyFile: {0} {1}".format(old_file, new_file))
-
+        logging.info("copy-file: {0} {1}".format(old_file, new_file))
         copyfile(old_file, new_file)
     else:
-        logging.info("File {0} does not exist".format(old_file))
+        logging.error("File {0} does not exist".format(old_file))
 
 
 def handle_directory_diff(directory_diff, old_directory, new_directory, proposed_directory):
+    '''Recursively descend into subdirectories to copy files from the old_directory
+       into the proposed_directory if any of these conditions exist:
+       1) The file only exists in the old_directory
+       2) The file in the old_directory has been modified'''
 
     # Copy old file into the proposed directory.
 
@@ -150,8 +155,8 @@ def handle_directory_diff(directory_diff, old_directory, new_directory, proposed
 
 
 def keyed_needle_in_haystack(key, needle, haystack):
-    ''' Determine if a "needle" is in the "haystack". The needle
-        is determined by "key" as an index into list_element_unique_keys.'''
+    '''Determine if a "needle" is in the "haystack". The needle
+       is determined by "key" as an index into list_element_unique_keys.'''
     result = False
     default_for_missing_value = "!no-key-value!"
 
@@ -180,8 +185,7 @@ def keyed_needle_in_haystack(key, needle, haystack):
 
 
 def safe_list_get (the_list, list_index, default):
-    ''' Since a list does not have a list.get() function,
-        this is a safe alternative. '''
+    '''Since a list does not have a list.get() function, this is a safe alternative.'''
     try:
         return the_list[list_index]
     except IndexError:
@@ -189,7 +193,7 @@ def safe_list_get (the_list, list_index, default):
 
 
 def files_from_list(files_list, old_directory, new_directory, proposed_directory):
-    ''' This is a python generator. '''
+    '''This is a python generator to create full pathnames.'''
     for files in files_list:
         old = safe_list_get(files, 0, "").format(old_directory, new_directory, proposed_directory)
         new = safe_list_get(files, 1, "").format(old_directory, new_directory, proposed_directory)
@@ -198,8 +202,7 @@ def files_from_list(files_list, old_directory, new_directory, proposed_directory
 
 
 def log_directory_diff(directory_diff):
-    ''' Recursively log file difference found.'''
-
+    '''Recursively log file differences found.'''
     for name in directory_diff.diff_files:
         old_filename = "{0}/{1}".format(directory_diff.left, name)
         new_filename = "{0}/{1}".format(directory_diff.right, name)
@@ -210,28 +213,25 @@ def log_directory_diff(directory_diff):
 
 
 def log_directory_new(directory_diff):
-    ''' Recursively log file difference found.'''
-
+    '''Recursively log new files found.'''
     for name in directory_diff.right_only:
         filename = "{0}/{1}".format(directory_diff.right, name)
-        logging.info("New-File: {}".format(filename))
-
+        logging.info("new-only: {0}".format(filename))
     for sub_directory_diff in directory_diff.subdirs.values():
         log_directory_new(sub_directory_diff)
 
 
 def log_directory_old(directory_diff):
-    ''' Recursively log file difference found.'''
-
+    '''Recursively log old files found.'''
     for name in directory_diff.left_only:
         filename = "{0}/{1}".format(directory_diff.left, name)
-        logging.info("Old-File: {}".format(filename))
-
+        logging.info("old-only: {0}".format(filename))
     for sub_directory_diff in directory_diff.subdirs.values():
         log_directory_old(sub_directory_diff)
 
 
 def log_file(filename, title):
+    '''Log contents of file.  One log record per line of file.'''
     lines = [line.strip() for line in open(filename)]
     for line in lines:
         logging.info("{0}: {1}: {2}".format(title, filename, line))
@@ -243,12 +243,14 @@ def log_file(filename, title):
 
 
 def log_file_differences(files_list, old_directory, new_directory):
+    '''Compare files and log any file differences detected.'''
     for old, new, _ in files_from_list(files_list, old_directory, new_directory, "") :
         if not filecmp.cmp(old, new, shallow=False):
             logging.info(log_file_diff_template.format(old, new))
 
 
 def log_directory_differences(directories_list, old_directory, new_directory, proposed_directory):
+    '''Compare old_directory and new_directory and log what was removed, added, or changed.'''
     for old, new, proposed in files_from_list(directories_list, old_directory, new_directory, proposed_directory):
         if os.path.exists(old):
             directory_diff = filecmp.dircmp(old, new)
@@ -263,25 +265,29 @@ def log_directory_differences(directories_list, old_directory, new_directory, pr
 
 
 def propose_copy_directories_from_old(directories_list, old_directory, new_directory, proposed_directory):
+    '''Copy an entire directory from old to proposed.'''
     for old, new, proposed in files_from_list(directories_list, old_directory, new_directory, proposed_directory):
         copy_directory(old, proposed)
 
 
 def propose_copy_files_from_old(files_list, old_directory, new_directory, proposed_directory):
+    '''Copy files from old to proposed.'''
     for old, new, proposed in files_from_list(files_list, old_directory, new_directory, proposed_directory):
         copy_file(old, proposed)
 
 
 def propose_diff_and_copy_directories_from_old(directories_list, old_directory, new_directory, proposed_directory):
+    '''Copy changed files in a directory from old to proposed.'''
     for old, new, proposed in files_from_list(directories_list, old_directory, new_directory, proposed_directory):
         if os.path.exists(old):
             directory_diff = filecmp.dircmp(old, new)
             handle_directory_diff(directory_diff, old, new, proposed)
         else:
-            logging.info("Directory {0} does not exist".format(old))
+            logging.error("Directory {0} does not exist".format(old))
 
 
 def propose_diff_and_copy_files_from_old(files_list, old_directory, new_directory, proposed_directory):
+    '''Copy changed files in a list from old to proposed.'''
     for old, new, proposed in files_from_list(files_list, old_directory, new_directory, proposed_directory):
         if not os.path.exists(old):
             pass
@@ -292,6 +298,7 @@ def propose_diff_and_copy_files_from_old(files_list, old_directory, new_director
 
 
 def propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, proposed_directory):
+    '''Construct a new g2config.json in the proposed directory.'''
 
     # Construct filenames.
 
@@ -308,11 +315,11 @@ def propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, pr
     # Verify existence of files.
 
     if not os.path.isfile(existing_filename):
-        print("Error: {0} does not exist".format(existing_filename))
+        logging.error("Error: {0} does not exist".format(existing_filename))
         sys.exit(1)
 
     if not os.path.isfile(template_filename):
-        print("Error: {0} does not exist".format(template_filename))
+        logging.error("Error: {0} does not exist".format(template_filename))
         sys.exit(1)
 
     # Load the existing configuration.
@@ -341,7 +348,7 @@ def propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, pr
 
 
 def transform_add_dsrc_etype(original_dictionary, update_dictionary):
-    ''' Insert G2_CONFIG.CFG_DSRC and G2_CONFIG.CFG_ETYPE into original dictionary.'''
+    '''Insert G2_CONFIG.CFG_DSRC and G2_CONFIG.CFG_ETYPE into original dictionary.'''
     result_dictionary = copy.deepcopy(original_dictionary)
     result_dictionary["G2_CONFIG"]["CFG_DSRC"] = update_dictionary.get("G2_CONFIG", {}).get("CFG_DSRC", {})
     result_dictionary["G2_CONFIG"]['CFG_ETYPE'] = update_dictionary.get("G2_CONFIG", {}).get("CFG_ETYPE", {})
@@ -349,9 +356,9 @@ def transform_add_dsrc_etype(original_dictionary, update_dictionary):
 
 
 def transform_add_keys(original_dictionary, update_dictionary):
-    ''' The dictionary returned is the original_dictionary
-        plus any new default values from the update_dictionary.
-        Note: update_dictionary is modified by this function. '''
+    '''The dictionary returned is the original_dictionary
+       plus any new default values from the update_dictionary.
+       Note: update_dictionary is modified by this function.'''
     for key, value in original_dictionary.items():
         if isinstance(value, collections.Mapping):
             update_dictionary[key] = transform_add_keys(update_dictionary.get(key, {}), value)
@@ -362,9 +369,9 @@ def transform_add_keys(original_dictionary, update_dictionary):
 
 
 def transform_add_list_elements(original_dictionary, update_dictionary):
-    ''' If a list element appears in the update_dictionary, but not in the
-        original_dictioary, add it to the original dictionary.
-        Note: the original_directory is modified by this function. '''
+    '''If a list element appears in the update_dictionary, but not in the
+       original_dictioary, add it to the original dictionary.
+       Note: the original_directory is modified by this function.'''
     for key, value in update_dictionary.items():
         if isinstance(value, collections.Mapping):
             original_dictionary[key] = transform_add_list_elements(original_dictionary.get(key, {}), value)
@@ -378,9 +385,9 @@ def transform_add_list_elements(original_dictionary, update_dictionary):
 
 
 def transform_add_list_unique_elements(original_dictionary, update_dictionary):
-    ''' If a value or list element is in the update dictionary, but not in the
-        original_dictionary, determine if it should be added to the original_dictionary.
-        Note: the original_directory is modified by this function. '''
+    '''If a value or list element is in the update dictionary, but not in the
+       original_dictionary, determine if it should be added to the original_dictionary.
+       Note: the original_directory is modified by this function.'''
     for key, value in update_dictionary.items():
 
         # If a sub-dictionary, recurse.
@@ -416,6 +423,13 @@ def transform_add_list_unique_elements(original_dictionary, update_dictionary):
 
 
 def do_add_dscr_etype(args):
+    '''Copies 2 JSON keys from an existing g2config.json into the contents of a template g2config.json file
+       creating a new output file. JSON keys: G2_CONFIG.CFG_DSRC, G2_CONFIG.CFG_ETYPE
+       Note: This does not modify the existing nor template versions of g2config.json.'''
+
+    # Prolog. 
+    
+    logging.info(entry_template.format(args))  
 
     # Parse command line arguments.
 
@@ -426,11 +440,11 @@ def do_add_dscr_etype(args):
     # Verify existence of files.
 
     if not os.path.isfile(existing_filename):
-        print("Error: --existing-g2config-file {0} does not exist".format(existing_filename))
+        logging.error("Error: --existing-g2config-file {0} does not exist".format(existing_filename))
         sys.exit(1)
 
     if not os.path.isfile(template_filename):
-        print("Error: --template-g2config-file {0} does not exist".format(template_filename))
+        logging.error("Error: --template-g2config-file {0} does not exist".format(template_filename))
         sys.exit(1)
 
     # Load the existing configuration.
@@ -454,7 +468,8 @@ def do_add_dscr_etype(args):
 
     # Epilog.
 
-    print("add-dscr-etype output file: {0}".format(output_filename))
+    logging.info(exit_template.format(args.subcommand, output_filename))
+    
 
 # -----------------------------------------------------------------------------
 # json-add-keys subcommand
@@ -462,6 +477,11 @@ def do_add_dscr_etype(args):
 
 
 def do_json_add_keys(args):
+    '''A generic JSON transformation to add JSON keys from an existing file to a template file.'''
+
+    # Prolog. 
+    
+    logging.info(entry_template.format(args))  
 
     # Parse command line arguments.
 
@@ -472,11 +492,11 @@ def do_json_add_keys(args):
     # Verify existence of files.
 
     if not os.path.isfile(existing_filename):
-        print("Error: --existing-file {0} does not exist".format(existing_filename))
+        logging.error("Error: --existing-file {0} does not exist".format(existing_filename))
         sys.exit(1)
 
     if not os.path.isfile(template_filename):
-        print("Error: --template-file {0} does not exist".format(template_filename))
+        logging.error("Error: --template-file {0} does not exist".format(template_filename))
         sys.exit(1)
 
     # Load the existing JSON.
@@ -500,7 +520,8 @@ def do_json_add_keys(args):
 
     # Epilog.
 
-    print("json-add-keys output file: {0}".format(output_filename))
+    logging.info(exit_template.format(args.subcommand, output_filename))
+    
 
 # -----------------------------------------------------------------------------
 # add-json-keys subcommand
@@ -508,6 +529,11 @@ def do_json_add_keys(args):
 
 
 def do_json_add_list_elements(args):
+    '''A generic JSON transformation to add list elements from an existing file to a template file.'''
+
+    # Prolog. 
+    
+    logging.info(entry_template.format(args))  
 
     # Parse command line arguments.
 
@@ -518,11 +544,11 @@ def do_json_add_list_elements(args):
     # Verify existence of files.
 
     if not os.path.isfile(existing_filename):
-        print("Error: --existing-file {0} does not exist".format(existing_filename))
+        logging.error("Error: --existing-file {0} does not exist".format(existing_filename))
         sys.exit(1)
 
     if not os.path.isfile(template_filename):
-        print("Error: --template-file {0} does not exist".format(template_filename))
+        logging.error("Error: --template-file {0} does not exist".format(template_filename))
         sys.exit(1)
 
     # Load the existing JSON.
@@ -546,7 +572,8 @@ def do_json_add_list_elements(args):
 
     # Epilog.
 
-    print("json-add-list-elements output file: {0}".format(output_filename))
+    logging.info(exit_template.format(args.subcommand, output_filename))
+    
 
 # -----------------------------------------------------------------------------
 # json-pretty-print subcommand
@@ -554,6 +581,11 @@ def do_json_add_list_elements(args):
 
 
 def do_json_pretty_print(args):
+    '''A generic JSON pretty print which sorts the JSON keys and indents. '''
+
+    # Prolog. 
+    
+    logging.info(entry_template.format(args))  
 
     # Parse command line arguments.
 
@@ -563,7 +595,7 @@ def do_json_pretty_print(args):
     # Verify existence of file.
 
     if not os.path.isfile(input_filename):
-        print("Error: --input-file {0} does not exist".format(input_filename))
+        logging.error("Error: --input-file {0} does not exist".format(input_filename))
         sys.exit(1)
 
     # Load the JSON file.
@@ -578,7 +610,8 @@ def do_json_pretty_print(args):
 
     # Epilog.
 
-    print("json-pretty-print output file: {0}".format(output_filename))
+    logging.info(exit_template.format(args.subcommand, output_filename))
+    
 
 # -----------------------------------------------------------------------------
 # migrate-g2config subcommand
@@ -586,21 +619,29 @@ def do_json_pretty_print(args):
 
 
 def do_migrate_g2config(args):
+    '''Create a proposed g2config.json file from the contents
+       of the existing and template '/opt/senzing' directories.
+       Note: This does not modify the existing nor template
+       versions of g2config.json. '''
+
+    # Prolog. 
+    
+    logging.info(entry_template.format(args))
 
     # Parse command line arguments.
 
     existing_filename = args.existing_filename
     template_filename = args.template_filename
-    output_filename = args.output_filename or "migrate-migrate-g2config-{0}.json".format(int(time.time()))
+    output_filename = args.output_filename or "migrate-g2config-{0}.json".format(int(time.time()))
 
     # Verify existence of files.
 
     if not os.path.isfile(existing_filename):
-        print("Error: --existing-g2config-file {0} does not exist".format(existing_filename))
+        logging.error("Error: --existing-g2config-file {0} does not exist".format(existing_filename))
         sys.exit(1)
 
     if not os.path.isfile(template_filename):
-        print("Error: --template-g2config-file {0} does not exist".format(template_filename))
+        logging.error("Error: --template-g2config-file {0} does not exist".format(template_filename))
         sys.exit(1)
 
     # Load the existing configuration.
@@ -624,7 +665,8 @@ def do_migrate_g2config(args):
 
     # Epilog.
 
-    print("migrate-g2config output file: {0}".format(output_filename))
+    logging.info(exit_template.format(args.subcommand, output_filename))
+    
 
 # -----------------------------------------------------------------------------
 # migrate-opt-senzing
@@ -632,6 +674,12 @@ def do_migrate_g2config(args):
 
 
 def do_migrate_opt_senzing(args):
+    '''Create a 'proposed' directory of changes to apply to the new Senzing directory.
+       Note: This does not modify the old nor the new senzing directory.  Rather it
+       creates a new directory and populates it with only the changes needed to be 
+       applied to the new senzing directory.'''
+
+    logging.info(entry_template.format(args))
 
     # Parse command line arguments.
 
@@ -642,22 +690,22 @@ def do_migrate_opt_senzing(args):
     # Verify existence of directories.
 
     if not os.path.isdir(old_directory):
-        print("Error: --old-opt-senzing {0} does not exist".format(old_directory))
+        logging.error("Error: --old-opt-senzing {0} does not exist".format(old_directory))
         sys.exit(1)
 
     if not os.path.isdir(new_directory):
-        print("Error: --new-opt-senzing {0} does not exist".format(new_directory))
+        logging.error("Error: --new-opt-senzing {0} does not exist".format(new_directory))
         sys.exit(1)
 
     if not os.path.exists(proposed_directory):
         os.makedirs(proposed_directory)
 
-    # Log versions
+    # Log versions.
 
-    log_file("{0}/g2/data/g2BuildVersion.txt".format(old_directory), "Old--Dir")
-    log_file("{0}/g2/data/g2BuildVersion.txt".format(new_directory), "New--Dir")
+    log_file("{0}/g2/data/g2BuildVersion.txt".format(old_directory), "old-version")
+    log_file("{0}/g2/data/g2BuildVersion.txt".format(new_directory), "new-version")
 
-    # Log differences
+    # Log differences.
 
     log_directory_list = [["{0}", "{1}", "{2}"]]
     log_directory_differences(log_directory_list, old_directory, new_directory, proposed_directory)
@@ -673,7 +721,7 @@ def do_migrate_opt_senzing(args):
 
     propose_diff_and_copy_directories_from_old(diff_directories_list, old_directory, new_directory, proposed_directory)
 
-    # File proposals
+    # File proposals.
 
 #   copy_files_list = []
 #   propose_copy_files_from_old(copy_files_list, old_directory, new_directory, proposed_directory)
@@ -688,13 +736,13 @@ def do_migrate_opt_senzing(args):
 
     propose_diff_and_copy_files_from_old(diff_files_list, old_directory, new_directory, proposed_directory)
 
-    # File specific proposals
+    # File specific proposals.
 
     propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, proposed_directory)
 
     # Epilog.
 
-    logging.info("Proposal: {0}.".format(proposed_directory))
+    logging.info(exit_template.format(args.subcommand, proposed_directory))
 
 # -----------------------------------------------------------------------------
 # Main
