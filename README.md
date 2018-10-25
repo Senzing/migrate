@@ -145,6 +145,6 @@ migrate.py json-pretty-print -h
     1. Contents of the old /opt/senzing directory is *not* changed.
     1. The location of the proposed changes is seen in the log.
 
-    ```console
-    YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-opt-senzing output: /path/to/proposed-opt-senzing-nnnnnnnnnn
-    ```
+        ```console
+        YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-opt-senzing output: /path/to/proposed-opt-senzing-nnnnnnnnnn
+        ```
