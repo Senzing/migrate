@@ -9,14 +9,15 @@ To see all of the subcommands, run
 
 ```console
 $ ./migrate.py -h
+
 usage: migrate.py [-h]
-                  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config,migrate-opt-senzing}
+                  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config,migrate-senzing-dir}
                   ...
 
 Migrate Senzing configuration
 
 positional arguments:
-  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config,migrate-opt-senzing}
+  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config,migrate-senzing-dir}
                         Subcommands:
     add-dscr-etype      Add existing G2_CONFIG.CFG_DSCR and
                         G2_CONFIG.CFG_ETYPE to a new g2config.json template
@@ -26,7 +27,7 @@ positional arguments:
                         Add elements to existing lists
     json-pretty-print   Sort and pretty print a file of JSON
     migrate-g2config    Migrate g2config.json
-    migrate-opt-senzing
+    migrate-senzing-dir
                         Migrate /opt/senzing directory by creating a proposal
 
 optional arguments:
@@ -50,7 +51,7 @@ migrate.py json-pretty-print -h
     1. [json-add-list-elements](#json-add-list-elements)
     1. [json-pretty-print](#json-pretty-print)
     1. [migrate-g2config](#migrate-g2config)
-    1. [migrate-opt-senzing](#migrate-opt-senzing)
+    1. [migrate-senzing-dir](#migrate-senzing-dir)
 
 ## Use cases
 
@@ -142,15 +143,15 @@ This use case shows how to apply the contents of a new version of Senzing_API.tg
 1. Create the proposal.
 
     ```console
-    ./migrate.py migrate-opt-senzing \
-        --old-opt-senzing ${OLD_SENZING_DIR} \
-        --new-opt-senzing ${NEW_SENZING_DIR}
+    ./migrate.py migrate-senzing-dir \
+        --old-senzing-dir ${OLD_SENZING_DIR} \
+        --new-senzing-dir ${NEW_SENZING_DIR}
     ```
 
 1. The location of the proposal will be in the log output.  Example:
 
     ```console
-    YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-opt-senzing output: /path/to/proposed-opt-senzing-nnnnnnnnnn
+    YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-senzing-dir output: /path/to/senzing-proposal-nnnnnnnnnn
     ```
 
 1. The log output will also show:
@@ -159,10 +160,10 @@ This use case shows how to apply the contents of a new version of Senzing_API.tg
     1. Files which have changed.  They are prefixed with `INFO: changed:`
     1. Files in the proposal. They are prefixed with `INFO: copy-file:` and `INFO: make-file:`.
 
-1. To see the proposal, look in the `/path/to/proposed-opt-senzing-nnnnnnnnnn` directory.  Example:
+1. To see the proposal, look in the `/path/to/senzing-proposal-nnnnnnnnnn` directory.  Example:
 
     ```console
-    $ cd /path/to/proposed-opt-senzing-nnnnnnnnnn
+    $ cd /path/to/senzing-proposal-nnnnnnnnnn
 
     $ tree
     .
@@ -183,16 +184,16 @@ This use case shows how to apply the contents of a new version of Senzing_API.tg
 
 #### Apply proposal
 
-1. Identify PROPOSED_SENZING_DIR.  From the `migrate.py` log, find the line with the proposal directory
+1. Identify PROPOSED_SENZING_DIR.  From the `migrate.py` log, find the line with the proposal directory.
 
     ```console
-    YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-opt-senzing output: /path/to/proposed-opt-senzing-nnnnnnnnnn
+    YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-opt-senzing output: /path/to/senzing-proposal-nnnnnnnnnn
     ```
 
 1. Set environment variable.
 
     ```console
-    export PROPOSED_SENZING_DIR=/path/to/proposed-opt-senzing-nnnnnnnnnn
+    export PROPOSED_SENZING_DIR=/path/to/senzing-proposal-nnnnnnnnnn
     ```
 
 1. Copy proposal into NEW_SENZING_DIR.
@@ -300,27 +301,27 @@ This use case shows how to apply the contents of a new version of Senzing_API.tg
     1. Add new elements to existing lists.
     1. Values that are in the existing file are *not* overwritten.
 
-### migrate-opt-senzing
+### migrate-senzing-dir
 
 1. Example invocation.
 
     ```console
-    migrate.py migrate-opt-senzing \
-      --old-opt-senzing /opt/senzing-old \
-      --new-opt-senzing /opt/senzing-new
+    migrate.py migrate-senzing-dir \
+      --old-senzing-dir /opt/senzing-old \
+      --new-senzing-dir /opt/senzing-new
     ```
 
 1. What does it do?
-    1. Log differences between old and new /opt/senzing directories.
+    1. Log differences between old and new "/opt/senzing" directories.
         1. Detects removed, added, and changed files.
-    1. Log files to be copied from old /opt/senzing directory.
-    1. Log files to be created by synthesizing content from old and new /opt/senzing directories.
+    1. Log files to be copied from old directory.
+    1. Log files to be created by synthesizing content from old and new directories.
     1. Create a directory of "proposed" changes.
-        1. These are proposed changes to the new /opt/senzing directory.
-        1. Contents of the new /opt/senzing directory is *not* changed.
-    1. Contents of the old /opt/senzing directory is *not* changed.
+        1. These are proposed changes to the new directory.
+        1. Contents of the new directory is *not* changed.
+    1. Contents of the old directory is *not* changed.
     1. The location of the proposed changes is seen in the log.
 
         ```console
-        YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-opt-senzing output: /path/to/proposed-opt-senzing-nnnnnnnnnn
+        YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-senzing-dir output: /path/to/senzing-proposal-nnnnnnnnnn
         ```

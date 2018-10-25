@@ -119,10 +119,10 @@ def get_parser():
     subparser_5.add_argument("--template-g2config-file", dest="template_filename", required=True, help="Input file pathname for the g2config.json configuration template")
     subparser_5.add_argument("--output-file", dest="output_filename", help="Output file pathname")
 
-    subparser_6 = subparsers.add_parser('migrate-opt-senzing', help='Migrate /opt/senzing directory by creating a proposal')
-    subparser_6.add_argument("--old-opt-senzing", dest="old_senzing_directory", required=True, help="Path to existing /opt/senzing")
-    subparser_6.add_argument("--new-opt-senzing", dest="new_senzing_directory", required=True, help="Path to newly created /opt/new-senzing")
-    subparser_6.add_argument("--proposed-opt-senzing", dest="proposed_senzing_directory", help="Path to proposed /opt/proposed-senzing")
+    subparser_6 = subparsers.add_parser('migrate-senzing-dir', help='Migrate /opt/senzing directory by creating a proposal')
+    subparser_6.add_argument("--old-senzing-dir", dest="old_senzing_directory", required=True, help="Path to existing /opt/senzing")
+    subparser_6.add_argument("--new-senzing-dir", dest="new_senzing_directory", required=True, help="Path to newly created /opt/new-senzing")
+    subparser_6.add_argument("--proposed-senzing-dir", dest="proposed_senzing_directory", help="Path to proposed /opt/proposed-senzing")
 
     return parser
 
@@ -330,7 +330,7 @@ def propose_diff_and_copy_files_from_old(files_list, old_directory, new_director
             copy_file(old, proposed)
 
 
-def propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, proposed_directory):
+def propose_g2_python_g2config_json(old_directory, new_directory, proposed_directory):
     '''Construct a new g2config.json in the proposed directory.'''
 
     # Construct filenames.
@@ -699,11 +699,11 @@ def do_migrate_g2config(args):
     logging.info(exit_template.format(args.subcommand, output_filename))
 
 # -----------------------------------------------------------------------------
-# migrate-opt-senzing
+# migrate-senzing-dir
 # -----------------------------------------------------------------------------
 
 
-def do_migrate_opt_senzing(args):
+def do_migrate_senzing_dir(args):
     '''Create a 'proposed' directory of changes to apply to the new Senzing directory.
        Note: This does not modify the old nor the new senzing directory.  Rather it
        creates a new directory and populates it with only the changes needed to be 
@@ -715,16 +715,16 @@ def do_migrate_opt_senzing(args):
 
     old_directory = args.old_senzing_directory
     new_directory = args.new_senzing_directory
-    proposed_directory = args.proposed_senzing_directory or "{0}/proposed-opt-senzing-{1}".format(os.getcwd(), int(time.time()))
+    proposed_directory = args.proposed_senzing_directory or "{0}/senzing-proposal-{1}".format(os.getcwd(), int(time.time()))
 
     # Verify existence of directories.
 
     if not os.path.isdir(old_directory):
-        logging.error("Error: --old-opt-senzing {0} does not exist".format(old_directory))
+        logging.error("Error: --old-senzing-dir {0} does not exist".format(old_directory))
         sys.exit(1)
 
     if not os.path.isdir(new_directory):
-        logging.error("Error: --new-opt-senzing {0} does not exist".format(new_directory))
+        logging.error("Error: --new-senzing-dir {0} does not exist".format(new_directory))
         sys.exit(1)
 
     if not os.path.exists(proposed_directory):
@@ -747,9 +747,6 @@ def do_migrate_opt_senzing(args):
 
     # Directory proposals.
 
-#   copy_directories_list = [ ]
-#   propose_copy_directories_from_old(copy_directories_list, old_directory, new_directory, proposed_directory)
-
     diff_directories_list = [
         ["{0}/g2/python", "{1}/g2/python", "{2}/g2/python"]
     ]
@@ -757,9 +754,6 @@ def do_migrate_opt_senzing(args):
     propose_diff_and_copy_directories_from_old(diff_directories_list, old_directory, new_directory, proposed_directory)
 
     # File proposals.
-
-#   copy_files_list = []
-#   propose_copy_files_from_old(copy_files_list, old_directory, new_directory, proposed_directory)
 
     diff_files_list = [
         ["{0}/g2/setupEnv", "{1}/g2/setupEnv", "{2}/g2/setupEnv"],
@@ -769,9 +763,9 @@ def do_migrate_opt_senzing(args):
 
     propose_diff_and_copy_files_from_old(diff_files_list, old_directory, new_directory, proposed_directory)
 
-    # File specific proposals.
+    # File-specific proposals.
 
-    propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, proposed_directory)
+    propose_g2_python_g2config_json(old_directory, new_directory, proposed_directory)
 
     # Epilog.
 
