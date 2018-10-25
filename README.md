@@ -212,6 +212,7 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 1. Verify Senzing processes are not running.
 
     ```console
+    ps -ef | grep -i g2
     ```
 
 1. Rename old Senzing directory to back it up.
