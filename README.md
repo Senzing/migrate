@@ -79,7 +79,8 @@ migrate.py json-pretty-print -h
 
 ### Migrating to a new Senzing_API.tgz
 
-This use case shows how to apply the contents of a new version of Senzing_API.tgz to an existing `/opt/senzing`.
+This use case shows how to apply the contents of a new version of 
+Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 
 #### Create NEW_SENZING_DIR
 
@@ -199,7 +200,7 @@ This use case shows how to apply the contents of a new version of Senzing_API.tg
 1. Copy proposal into NEW_SENZING_DIR.
 
     ```console
-    cp -r ${PROPOSED_SENZING_DIR} ${NEW_SENZING_DIR}
+    cp -r ${PROPOSED_SENZING_DIR}/* ${NEW_SENZING_DIR}
     ```  
 
     An alternative is to pick-and-choose the files to be copied individually.  
