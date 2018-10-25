@@ -79,7 +79,7 @@ migrate.py json-pretty-print -h
 
 ### Migrating to a new Senzing_API.tgz
 
-This use case shows how to apply the contents of a new version of 
+This use case shows how to apply the contents of a new version of
 Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 
 #### Create NEW_SENZING_DIR
