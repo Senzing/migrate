@@ -59,7 +59,6 @@ log_file_diff_template = "changed: {0} {1}"
 entry_template = "migrate.py {0}"
 exit_template = "migrate.py {0} output: {1}"
 
-
 # -----------------------------------------------------------------------------
 # Define argument parser
 # -----------------------------------------------------------------------------
@@ -341,6 +340,8 @@ def propose_opt_senzing_g2_python_g2config_json(old_directory, new_directory, pr
     with open(output_filename, "w") as output_file:
         json.dump(result_dictionary, output_file, sort_keys=True, indent=4)
 
+    logging.info("make-file: {0}".format(output_filename))
+
 # -----------------------------------------------------------------------------
 # transform_* functions
 #   Common function signature: result_dictionary = transform_XXX(original, update)
@@ -427,9 +428,9 @@ def do_add_dscr_etype(args):
        creating a new output file. JSON keys: G2_CONFIG.CFG_DSRC, G2_CONFIG.CFG_ETYPE
        Note: This does not modify the existing nor template versions of g2config.json.'''
 
-    # Prolog. 
-    
-    logging.info(entry_template.format(args))  
+    # Prolog.
+
+    logging.info(entry_template.format(args))
 
     # Parse command line arguments.
 
@@ -469,7 +470,6 @@ def do_add_dscr_etype(args):
     # Epilog.
 
     logging.info(exit_template.format(args.subcommand, output_filename))
-    
 
 # -----------------------------------------------------------------------------
 # json-add-keys subcommand
@@ -479,9 +479,9 @@ def do_add_dscr_etype(args):
 def do_json_add_keys(args):
     '''A generic JSON transformation to add JSON keys from an existing file to a template file.'''
 
-    # Prolog. 
-    
-    logging.info(entry_template.format(args))  
+    # Prolog.
+
+    logging.info(entry_template.format(args))
 
     # Parse command line arguments.
 
@@ -521,7 +521,6 @@ def do_json_add_keys(args):
     # Epilog.
 
     logging.info(exit_template.format(args.subcommand, output_filename))
-    
 
 # -----------------------------------------------------------------------------
 # add-json-keys subcommand
@@ -531,9 +530,9 @@ def do_json_add_keys(args):
 def do_json_add_list_elements(args):
     '''A generic JSON transformation to add list elements from an existing file to a template file.'''
 
-    # Prolog. 
-    
-    logging.info(entry_template.format(args))  
+    # Prolog.
+
+    logging.info(entry_template.format(args))
 
     # Parse command line arguments.
 
@@ -573,7 +572,6 @@ def do_json_add_list_elements(args):
     # Epilog.
 
     logging.info(exit_template.format(args.subcommand, output_filename))
-    
 
 # -----------------------------------------------------------------------------
 # json-pretty-print subcommand
@@ -583,9 +581,9 @@ def do_json_add_list_elements(args):
 def do_json_pretty_print(args):
     '''A generic JSON pretty print which sorts the JSON keys and indents. '''
 
-    # Prolog. 
-    
-    logging.info(entry_template.format(args))  
+    # Prolog.
+
+    logging.info(entry_template.format(args))
 
     # Parse command line arguments.
 
@@ -611,7 +609,6 @@ def do_json_pretty_print(args):
     # Epilog.
 
     logging.info(exit_template.format(args.subcommand, output_filename))
-    
 
 # -----------------------------------------------------------------------------
 # migrate-g2config subcommand
@@ -624,8 +621,8 @@ def do_migrate_g2config(args):
        Note: This does not modify the existing nor template
        versions of g2config.json. '''
 
-    # Prolog. 
-    
+    # Prolog.
+
     logging.info(entry_template.format(args))
 
     # Parse command line arguments.
@@ -666,7 +663,6 @@ def do_migrate_g2config(args):
     # Epilog.
 
     logging.info(exit_template.format(args.subcommand, output_filename))
-    
 
 # -----------------------------------------------------------------------------
 # migrate-opt-senzing
