@@ -712,7 +712,7 @@ def do_migrate_opt_senzing(args):
 #   propose_copy_directories_from_old(copy_directories_list, old_directory, new_directory, proposed_directory)
 
     diff_directories_list = [
-        ["{0}/g2/python/demo", "{1}/g2/python/demo", "{2}/g2/python/demo"]
+        ["{0}/g2/python", "{1}/g2/python", "{2}/g2/python"]
     ]
 
     propose_diff_and_copy_directories_from_old(diff_directories_list, old_directory, new_directory, proposed_directory)
