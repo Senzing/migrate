@@ -55,6 +55,32 @@ list_element_unique_keys = {
     "SYS_OOM": [["OOM_TYPE", "OOM_LEVEL", "LENS_ID", "LIB_FEAT_ID", "FELEM_ID", "LIB_FELEM_ID"]]
 }
 
+# A list of files that should not be copied into the proposal.
+
+blacklist = []  # To be populated at run-time from the template.
+blacklist_template = [
+    "{0}/g2/python/CompressedFile.py",
+    "{0}/g2/python/DumpStack.py",
+    "{0}/g2/python/G2AnonModule.py",
+    "{0}/g2/python/G2AuditModule.py",
+    "{0}/g2/python/G2Command.py",
+    "{0}/g2/python/G2ConfigModule.py",
+    "{0}/g2/python/G2ConfigTables.py",
+    "{0}/g2/python/G2Database.py",
+    "{0}/g2/python/G2Exception.py",
+    "{0}/g2/python/G2Export.py",
+    "{0}/g2/python/G2Loader.py",
+    "{0}/g2/python/G2Module.py",
+    "{0}/g2/python/G2Project.py",
+    "{0}/g2/python/g2purge.umf",
+    "{0}/g2/python/G2Report.py",
+    "{0}/g2/python/G2Service.py",
+    "{0}/g2/python/g2silent.cfg",
+    "{0}/g2/python/G2VCompare.py"
+    ]
+
+# Log messages.
+
 log_file_diff_template = "changed: {0} {1}"
 entry_template = "migrate.py {0}"
 exit_template = "migrate.py {0} output: {1}"
@@ -116,6 +142,14 @@ def copy_directory(old, new):
 
 def copy_file(old_file, new_file):
     '''Copy a file.  Create sub-directories if needed.'''
+
+    # If blacklisted, do not copy.
+
+    if old_file in blacklist:
+        return
+
+    # If file exists, perform copy.
+
     if os.path.exists(old_file):
 
         # Ensure directory exists for proposed file.
@@ -144,7 +178,7 @@ def handle_directory_diff(directory_diff, old_directory, new_directory, proposed
     for name in merged_lists:
         old_file = "{0}/{1}".format(directory_diff.left, name)
         new_path = re.sub(new_directory, '', directory_diff.right)
-        new_file = "{0}/{1}{2}".format(proposed_directory, new_path, name)
+        new_file = "{0}{1}/{2}".format(proposed_directory, new_path, name)
         copy_file(old_file, new_file)
 
     # Recurse into next level of subdirectories.
@@ -706,6 +740,11 @@ def do_migrate_opt_senzing(args):
     log_directory_list = [["{0}", "{1}", "{2}"]]
     log_directory_differences(log_directory_list, old_directory, new_directory, proposed_directory)
 
+    # Populate blacklist.
+
+    for blacklist_item in blacklist_template:
+        blacklist.append(blacklist_item.format(old_directory))
+
     # Directory proposals.
 
 #   copy_directories_list = [ ]
@@ -724,8 +763,6 @@ def do_migrate_opt_senzing(args):
 
     diff_files_list = [
         ["{0}/g2/setupEnv", "{1}/g2/setupEnv", "{2}/g2/setupEnv"],
-        ["{0}/g2/python/G2Module.ini", "{1}/g2/python/G2Module.ini", "{2}/g2/python/G2Module.ini"],
-        ["{0}/g2/python/G2Project.ini", "{1}/g2/python/G2Project.ini", "{2}/g2/python/G2Project.ini"],
         ["{0}/g2/data/g2.lic", "{1}/g2/data/g2.lic", "{2}/g2/data/g2.lic"],
         ["{0}/g2/sqldb/G2C.db", "{0}/g2/data/G2C.db", "{2}/g2/sqldb/G2C.db"]
     ]
