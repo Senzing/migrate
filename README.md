@@ -215,7 +215,7 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
     ???
     ```
 
-1. Rename old Senzing directory.
+1. Rename old Senzing directory to back it up.
 
     ```console
     mv ${OLD_SENZING_DIR} ${OLD_SENZING_DIR}.$(date +%s)
