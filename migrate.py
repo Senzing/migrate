@@ -409,7 +409,7 @@ def propose_g2_python_g2config_json(old_directory, new_directory, proposed_direc
 
     # Perform blacklist operation.
 
-    if os.path.isfile(g2config_blacklist_filename):
+    if g2config_blacklist_filename and os.path.isfile(g2config_blacklist_filename):
         with open(g2config_blacklist_filename) as g2config_blacklist_file:
             blacklist_dictionary = json.load(g2config_blacklist_file)
         result_dictionary = dictionary_difference(result_dictionary, blacklist_dictionary)
