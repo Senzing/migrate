@@ -120,6 +120,7 @@ def get_parser():
     subparser_5 = subparsers.add_parser('migrate-g2config', help='Migrate g2config.json')
     subparser_5.add_argument("--existing-g2config-file", dest="existing_filename", required=True, help="Input file pathname for existing g2config.json configuration file")
     subparser_5.add_argument("--template-g2config-file", dest="template_filename", required=True, help="Input file pathname for the g2config.json configuration template")
+    subparser_5.add_argument("--g2config-blacklist", dest="g2config_blacklist_filename", help="File of values that are not migrated in g2config.json")
     subparser_5.add_argument("--output-file", dest="output_filename", help="Output file pathname")
 
     subparser_6 = subparsers.add_parser('migrate-senzing-dir', help='Migrate /opt/senzing directory by creating a proposal')
@@ -757,6 +758,7 @@ def do_migrate_g2config(args):
 
     existing_filename = args.existing_filename
     template_filename = args.template_filename
+    g2config_blacklist_filename = args.g2config_blacklist_filename
     output_filename = args.output_filename or "migrate-g2config-{0}.json".format(int(time.time()))
 
     # Verify existence of files.
@@ -782,6 +784,13 @@ def do_migrate_g2config(args):
     # Do the transformation.
 
     result_dictionary = transform_add_list_unique_elements(existing_dictionary, template_dictionary)
+
+    # Perform blacklist operation.
+
+    if g2config_blacklist_filename and os.path.isfile(g2config_blacklist_filename):
+        with open(g2config_blacklist_filename) as g2config_blacklist_file:
+            blacklist_dictionary = json.load(g2config_blacklist_file)
+        result_dictionary = dictionary_difference(result_dictionary, blacklist_dictionary)
 
     # Write output.
 
