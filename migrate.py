@@ -71,12 +71,15 @@ blacklist_template = [
     "{0}/g2/python/G2Export.py",
     "{0}/g2/python/G2Loader.py",
     "{0}/g2/python/G2Module.py",
+    "{0}/g2/python/G2Product.py",
+    "{0}/g2/python/G2ProductModule.py",
     "{0}/g2/python/G2Project.py",
     "{0}/g2/python/g2purge.umf",
     "{0}/g2/python/G2Report.py",
     "{0}/g2/python/G2Service.py",
     "{0}/g2/python/g2silent.cfg",
-    "{0}/g2/python/G2VCompare.py"
+    "{0}/g2/python/G2VCompare.py",
+    "{0}/g2/python/UpgradeConfig.py"
     ]
 
 # Log messages.
@@ -117,12 +120,19 @@ def get_parser():
     subparser_5 = subparsers.add_parser('migrate-g2config', help='Migrate g2config.json')
     subparser_5.add_argument("--existing-g2config-file", dest="existing_filename", required=True, help="Input file pathname for existing g2config.json configuration file")
     subparser_5.add_argument("--template-g2config-file", dest="template_filename", required=True, help="Input file pathname for the g2config.json configuration template")
+    subparser_5.add_argument("--g2config-blacklist", dest="g2config_blacklist_filename", help="File of values that are not migrated in g2config.json")
     subparser_5.add_argument("--output-file", dest="output_filename", help="Output file pathname")
 
     subparser_6 = subparsers.add_parser('migrate-senzing-dir', help='Migrate /opt/senzing directory by creating a proposal')
     subparser_6.add_argument("--old-senzing-dir", dest="old_senzing_directory", required=True, help="Path to existing /opt/senzing")
     subparser_6.add_argument("--new-senzing-dir", dest="new_senzing_directory", required=True, help="Path to newly created /opt/new-senzing")
+    subparser_6.add_argument("--g2config-blacklist", dest="g2config_blacklist_filename", help="File of values that are not migrated in g2config.json")
     subparser_6.add_argument("--proposed-senzing-dir", dest="proposed_senzing_directory", help="Path to proposed /opt/proposed-senzing")
+
+    subparser_7 = subparsers.add_parser('json-difference', help='Subtract two json files. minuend - subtrahend = difference')
+    subparser_7.add_argument("--minuend", dest="minuend_filename", required=True, help="Input file pathname")
+    subparser_7.add_argument("--subtrahend", dest="subtrahend_filename", required=True, help="Input file pathname")
+    subparser_7.add_argument("--output-file", dest="output_filename", help="Output file pathname")
 
     return parser
 
@@ -269,6 +279,35 @@ def log_file(filename, title):
     for line in lines:
         logging.info("{0}: {1}: {2}".format(title, filename, line))
 
+
+def dictionary_difference(minuend, subtrahend):
+    ''' Perform "minuend - subtrahend = difference".  Returning the difference. '''
+    result = {}
+    for key, value in minuend.items():
+
+        # Handle maps.
+
+        if isinstance(value, collections.Mapping):
+            recursive_value = dictionary_difference(value, subtrahend.get(key, {}))
+            if recursive_value:
+                result[key] = recursive_value
+
+        # Handle lists.
+
+        elif isinstance(value, list):
+            subtrahend_list = subtrahend.get(key, [])
+            for list_element in value:
+                if list_element not in subtrahend_list:
+                    if key not in result:
+                        result[key] = []
+                    result[key].append(list_element)
+
+        # Handle missing keys in subtrahend.
+
+        elif not subtrahend.get(key):
+            result[key] = value
+    return result
+
 # -----------------------------------------------------------------------------
 # log_* functions
 #   Common function signature: log_XXX(files_list, old_dir, new_dir)
@@ -330,7 +369,7 @@ def propose_diff_and_copy_files_from_old(files_list, old_directory, new_director
             copy_file(old, proposed)
 
 
-def propose_g2_python_g2config_json(old_directory, new_directory, proposed_directory):
+def propose_g2_python_g2config_json(old_directory, new_directory, proposed_directory, g2config_blacklist_filename):
     '''Construct a new g2config.json in the proposed directory.'''
 
     # Construct filenames.
@@ -368,6 +407,13 @@ def propose_g2_python_g2config_json(old_directory, new_directory, proposed_direc
     # Do the transformation.
 
     result_dictionary = transform_add_list_unique_elements(existing_dictionary, template_dictionary)
+
+    # Perform blacklist operation.
+
+    if g2config_blacklist_filename and os.path.isfile(g2config_blacklist_filename):
+        with open(g2config_blacklist_filename) as g2config_blacklist_file:
+            blacklist_dictionary = json.load(g2config_blacklist_file)
+        result_dictionary = dictionary_difference(result_dictionary, blacklist_dictionary)
 
     # Write output.
 
@@ -612,6 +658,55 @@ def do_json_add_list_elements(args):
 # -----------------------------------------------------------------------------
 
 
+def do_json_difference(args):
+    '''A generic JSON pretty print which sorts the JSON keys and indents. '''
+
+    # Prolog.
+
+    logging.info(entry_template.format(args))
+
+    # Parse command line arguments.
+
+    minuend_filename = args.minuend_filename
+    subtrahend_filename = args.subtrahend_filename
+    output_filename = args.output_filename or "migrate-json-difference-{0}.json".format(int(time.time()))
+
+    # Verify existence of file.
+
+    if not os.path.isfile(minuend_filename):
+        logging.error("Error: --minuend {0} does not exist".format(minuend_filename))
+        sys.exit(1)
+
+    if not os.path.isfile(subtrahend_filename):
+        logging.error("Error: -subtrahend {0} does not exist".format(subtrahend_filename))
+        sys.exit(1)
+
+    # Load the JSON files.
+
+    with open(minuend_filename) as minuend_file:
+        minuend_dictionary = json.load(minuend_file)
+
+    with open(subtrahend_filename) as subtrahend_file:
+        subtrahend_dictionary = json.load(subtrahend_file)
+
+    # Calculate difference.
+
+    result_dictionary = dictionary_difference(minuend_dictionary, subtrahend_dictionary)
+
+    # Write the output JSON file.
+
+    with open(output_filename, "w") as output_file:
+        json.dump(result_dictionary, output_file, sort_keys=True, indent=4)
+
+    # Epilog.
+
+    logging.info(exit_template.format(args.subcommand, output_filename))
+
+# -----------------------------------------------------------------------------
+# json-pretty-print subcommand
+# -----------------------------------------------------------------------------
+
+
 def do_json_pretty_print(args):
     '''A generic JSON pretty print which sorts the JSON keys and indents. '''
 
@@ -663,6 +758,7 @@ def do_migrate_g2config(args):
 
     existing_filename = args.existing_filename
     template_filename = args.template_filename
+    g2config_blacklist_filename = args.g2config_blacklist_filename
     output_filename = args.output_filename or "migrate-g2config-{0}.json".format(int(time.time()))
 
     # Verify existence of files.
@@ -688,6 +784,13 @@ def do_migrate_g2config(args):
     # Do the transformation.
 
     result_dictionary = transform_add_list_unique_elements(existing_dictionary, template_dictionary)
+
+    # Perform blacklist operation.
+
+    if g2config_blacklist_filename and os.path.isfile(g2config_blacklist_filename):
+        with open(g2config_blacklist_filename) as g2config_blacklist_file:
+            blacklist_dictionary = json.load(g2config_blacklist_file)
+        result_dictionary = dictionary_difference(result_dictionary, blacklist_dictionary)
 
     # Write output.
 
@@ -715,6 +818,7 @@ def do_migrate_senzing_dir(args):
 
     old_directory = args.old_senzing_directory
     new_directory = args.new_senzing_directory
+    g2config_blacklist_filename = args.g2config_blacklist_filename
     proposed_directory = args.proposed_senzing_directory or "{0}/senzing-proposal-{1}".format(os.getcwd(), int(time.time()))
 
     # Verify existence of directories.
@@ -765,7 +869,7 @@ def do_migrate_senzing_dir(args):
 
     # File-specific proposals.
 
-    propose_g2_python_g2config_json(old_directory, new_directory, proposed_directory)
+    propose_g2_python_g2config_json(old_directory, new_directory, proposed_directory, g2config_blacklist_filename)
 
     # Epilog.
 

@@ -1,0 +1,218 @@
+{
+    "G2_CONFIG": {
+        "CFG_DFBOM": [
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 100, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 2, 
+                "FELEM_ID": 22, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 3, 
+                "FELEM_ID": 23, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 4, 
+                "FELEM_ID": 24, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 5, 
+                "FELEM_ID": 101, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 6, 
+                "FELEM_ID": 102, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 7, 
+                "FELEM_ID": 103, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 8, 
+                "FELEM_ID": 25, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 9, 
+                "FELEM_ID": 26, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 10, 
+                "FELEM_ID": 27, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 11, 
+                "FELEM_ID": 28, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 12, 
+                "FELEM_ID": 29, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 13, 
+                "FELEM_ID": 30, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 14, 
+                "FELEM_ID": 31, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 15, 
+                "FELEM_ID": 32, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 16, 
+                "FELEM_ID": 65, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 17, 
+                "FELEM_ID": 66, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 18, 
+                "FELEM_ID": 72, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 19, 
+                "FELEM_ID": 73, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 20, 
+                "FELEM_ID": 74, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 21, 
+                "FELEM_ID": 11, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 5, 
+                "EXEC_ORDER": 22, 
+                "FELEM_ID": 108, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 18, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 36, 
+                "FTYPE_ID": 18
+            }, 
+            {
+                "DFCALL_ID": 19, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 36, 
+                "FTYPE_ID": 19
+            }, 
+            {
+                "DFCALL_ID": 20, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 36, 
+                "FTYPE_ID": 20
+            }, 
+            {
+                "DFCALL_ID": 21, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 36, 
+                "FTYPE_ID": 21
+            }, 
+            {
+                "DFCALL_ID": 22, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 36, 
+                "FTYPE_ID": 22
+            }, 
+            {
+                "DFCALL_ID": 26, 
+                "EXEC_ORDER": 1, 
+                "FELEM_ID": 36, 
+                "FTYPE_ID": 26
+            }
+        ], 
+        "CFG_DFCALL": [
+            {
+                "DFCALL_ID": 5, 
+                "DFUNC_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 5
+            }, 
+            {
+                "DFCALL_ID": 18, 
+                "DFUNC_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 18
+            }, 
+            {
+                "DFCALL_ID": 19, 
+                "DFUNC_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 19
+            }, 
+            {
+                "DFCALL_ID": 20, 
+                "DFUNC_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 20
+            }, 
+            {
+                "DFCALL_ID": 21, 
+                "DFUNC_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 21
+            }, 
+            {
+                "DFCALL_ID": 22, 
+                "DFUNC_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 22
+            }, 
+            {
+                "DFCALL_ID": 26, 
+                "DFUNC_ID": 1, 
+                "EXEC_ORDER": 1, 
+                "FTYPE_ID": 26
+            }
+        ]
+    }
+}

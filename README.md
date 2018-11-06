@@ -9,15 +9,14 @@ To see all of the subcommands, run
 
 ```console
 $ ./migrate.py -h
-
 usage: migrate.py [-h]
-                  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config,migrate-senzing-dir}
+                  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config,migrate-senzing-dir,json-difference}
                   ...
 
 Migrate Senzing configuration
 
 positional arguments:
-  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config,migrate-senzing-dir}
+  {add-dscr-etype,json-add-keys,json-add-list-elements,json-pretty-print,migrate-g2config,migrate-senzing-dir,json-difference}
                         Subcommands:
     add-dscr-etype      Add existing G2_CONFIG.CFG_DSCR and
                         G2_CONFIG.CFG_ETYPE to a new g2config.json template
@@ -29,6 +28,8 @@ positional arguments:
     migrate-g2config    Migrate g2config.json
     migrate-senzing-dir
                         Migrate /opt/senzing directory by creating a proposal
+    json-difference     Subtract two json files. minuend - subtrahend =
+                        difference
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -50,6 +51,7 @@ migrate.py json-pretty-print -h
     1. [json-add-keys](#json-add-keys)
     1. [json-add-list-elements](#json-add-list-elements)
     1. [json-pretty-print](#json-pretty-print)
+    1. [json-difference](#json-difference)
     1. [migrate-g2config](#migrate-g2config)
     1. [migrate-senzing-dir](#migrate-senzing-dir)
 
@@ -82,7 +84,7 @@ migrate.py json-pretty-print -h
 This use case shows how to apply the contents of a new version of
 Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 
-#### Create NEW_SENZING_DIR
+#### Create SENZING_DIR_NEW
 
 1. Download [Senzing_API.tgz](https://s3.amazonaws.com/public-read-access/SenzingComDownloads/Senzing_API.tgz).
 
@@ -95,16 +97,16 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 1. Set environment variable.
 
     ```console
-    export NEW_SENZING_DIR=/opt/senzing.$(date +%s)
+    export SENZING_DIR_NEW=/opt/senzing.$(date +%s)
     ```
 
 1. Extract [Senzing_API.tgz](https://s3.amazonaws.com/public-read-access/SenzingComDownloads/Senzing_API.tgz)
-   to `${NEW_SENZING_DIR}`.
+   to `${SENZING_DIR_NEW}`.
 
     1. Linux
 
         ```console
-        sudo mkdir -p ${NEW_SENZING_DIR}
+        sudo mkdir -p ${SENZING_DIR_NEW}
 
         sudo tar \
           --extract \
@@ -112,41 +114,58 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
           --group=root \
           --no-same-owner \
           --no-same-permissions \
-          --directory=${NEW_SENZING_DIR} \
+          --directory=${SENZING_DIR_NEW} \
           --file=/tmp/Senzing_API.tgz
         ```
 
     1. macOS
         ```console
-        sudo mkdir -p ${NEW_SENZING_DIR}
+        sudo mkdir -p ${SENZING_DIR_NEW}
 
         sudo tar \
           --extract \
           --no-same-owner \
           --no-same-permissions \
-          --directory=${NEW_SENZING_DIR} \
+          --directory=${SENZING_DIR_NEW} \
           --file=/tmp/Senzing_API.tgz
         ```
 
-#### Identify OLD_SENZING_DIR
+#### Identify SENZING_DIR_OLD
 
 1. Determine where Senzing_API.tgz was last installed.
    By convention, it is usually at `/opt/senzing`.
 1. Set environment variable.
 
     ```console
-    export OLD_SENZING_DIR=/opt/senzing
+    export SENZING_DIR_OLD=/opt/senzing
+    ```
+
+#### Download blacklists
+
+1. Set environment variable. Example:
+
+    ```console
+    export SENZING_G2CONFIG_BLACKLIST=/tmp/g2config-blacklist.json
+    ```
+
+1. Download [blacklists](https://github.com/Senzing/migrate/tree/master/blacklists). Example:
+
+    ```console
+    curl -X GET \
+      --output ${SENZING_G2CONFIG_BLACKLIST} \
+      https://raw.githubusercontent.com/Senzing/migrate/master/blacklists/g2config-blacklist-1.3.18278.json
     ```
 
 #### Create a migration proposal
 
-1. **Note:** This step will *not* modify either the `$OLD_SENZING_DIR` or the `$NEW_SENZING_DIR` directories.
+1. **Note:** This step will *not* modify either the `$SENZING_DIR_OLD` or the `$SENZING_DIR_NEW` directories.
 1. Create the proposal.
 
     ```console
     ./migrate.py migrate-senzing-dir \
-        --old-senzing-dir ${OLD_SENZING_DIR} \
-        --new-senzing-dir ${NEW_SENZING_DIR}
+        --old-senzing-dir ${SENZING_DIR_OLD} \
+        --new-senzing-dir ${SENZING_DIR_NEW} \
+        --g2config-blacklist ${SENZING_G2CONFIG_BLACKLIST}
     ```
 
 1. The location of the proposal will be in the log output.  Example:
@@ -156,8 +175,8 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
     ```
 
 1. The log output will also show:
-    1. Files only in the ${OLD_SENZING_DIR}. They are prefixed with `INFO: old-only:`
-    1. Files only in the ${NEW_SENZING_DIR}. They are prefixed with `INFO: new-only:`
+    1. Files only in the ${SENZING_DIR_OLD}. They are prefixed with `INFO: old-only:`
+    1. Files only in the ${SENZING_DIR_NEW}. They are prefixed with `INFO: new-only:`
     1. Files which have changed.  They are prefixed with `INFO: changed:`
     1. Files in the proposal. They are prefixed with `INFO: copy-file:` and `INFO: make-file:`.
 
@@ -181,11 +200,11 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 
     To install `tree`, run `sudo yum install tree` or `sudo apt-get install tree`.
 
-1. The proposal directory contains only the files that need to be applied to the $NEW_SENZING_DIR.
+1. The proposal directory contains only the files that need to be applied to the $SENZING_DIR_NEW.
 
 #### Apply proposal
 
-1. Identify PROPOSED_SENZING_DIR.  From the `migrate.py` log, find the line with the proposal directory.
+1. Identify SENZING_DIR_PROPOSED.  From the `migrate.py` log, find the line with the proposal directory.
 
     ```console
     YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-opt-senzing output: /path/to/senzing-proposal-nnnnnnnnnn
@@ -194,13 +213,13 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 1. Set environment variable.
 
     ```console
-    export PROPOSED_SENZING_DIR=/path/to/senzing-proposal-nnnnnnnnnn
+    export SENZING_DIR_PROPOSED=/path/to/senzing-proposal-nnnnnnnnnn
     ```
 
-1. Copy proposal into NEW_SENZING_DIR.
+1. Copy proposal into SENZING_DIR_NEW.
 
     ```console
-    cp -r ${PROPOSED_SENZING_DIR}/* ${NEW_SENZING_DIR}
+    cp -r ${SENZING_DIR_PROPOSED}/* ${SENZING_DIR_NEW}
     ```  
 
     An alternative is to pick-and-choose the files to be copied individually.  
@@ -218,13 +237,13 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 1. Rename old Senzing directory to back it up.
 
     ```console
-    mv ${OLD_SENZING_DIR} ${OLD_SENZING_DIR}.$(date +%s)
+    mv ${SENZING_DIR_OLD} ${SENZING_DIR_OLD}.$(date +%s)
     ```
 
 1. Rename the new Senzing Directory to be the name of the "original" Senzing directory.
 
     ```console
-    mv ${NEW_SENZING_DIR} ${OLD_SENZING_DIR}
+    mv ${SENZING_DIR_NEW} ${SENZING_DIR_OLD}
     ```
 
 ## Sub-command details
@@ -273,6 +292,20 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
     1. Add new list elements from the template file into the existing file.
     1. List elements in the existing file are *not* overwritten.
 
+### json-difference
+
+1. Example invocation.
+
+    ```console
+    migrate.py json-difference \
+      --minuend /opt/senzing/g2/data/g2config.json \
+      --subtrahend /opt/senzing/g2/python/g2config.json
+    ```
+
+1. What does it do?
+    1. Start with the "minuend" file contents.
+    1. Remove all of the "subtrahend" contents from the "minuend" contents.
+
 ### json-pretty-print
 
 1. Example invocation.
@@ -293,13 +326,15 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
     ```console
     migrate.py migrate-g2config \
       --existing-g2config-file /opt/senzing/g2/python/g2config.json \
-      --template-g2config-file /opt/senzing/g2/data/g2config.json
+      --template-g2config-file /opt/senzing/g2/data/g2config.json \
+      --g2config-blacklist /path/to/g2config-blacklist-N.N.N.json
     ```
 
 1. What does it do?
     1. Start with the existing file contents.
     1. Add JSON key/value pairs that are in the template file, but not in the existing file.
     1. Add new elements to existing lists.
+    1. Remove blacklisted values.
     1. Values that are in the existing file are *not* overwritten.
 
 ### migrate-senzing-dir
@@ -309,7 +344,8 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
     ```console
     migrate.py migrate-senzing-dir \
       --old-senzing-dir /opt/senzing-old \
-      --new-senzing-dir /opt/senzing-new
+      --new-senzing-dir /opt/senzing-new \
+      --g2config-blacklist /path/to/g2config-blacklist-N.N.N.json
     ```
 
 1. What does it do?
@@ -320,6 +356,7 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
     1. Create a directory of "proposed" changes.
         1. These are proposed changes to the new directory.
         1. Contents of the new directory is *not* changed.
+        1. Blacklists prevent migration of changes.
     1. Contents of the old directory is *not* changed.
     1. The location of the proposed changes is seen in the log.
 
