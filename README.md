@@ -326,13 +326,15 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
     ```console
     migrate.py migrate-g2config \
       --existing-g2config-file /opt/senzing/g2/python/g2config.json \
-      --template-g2config-file /opt/senzing/g2/data/g2config.json
+      --template-g2config-file /opt/senzing/g2/data/g2config.json \
+      --g2config-blacklist /path/to/g2config-blacklist-N.N.N.json
     ```
 
 1. What does it do?
     1. Start with the existing file contents.
     1. Add JSON key/value pairs that are in the template file, but not in the existing file.
     1. Add new elements to existing lists.
+    1. Remove blacklisted values.
     1. Values that are in the existing file are *not* overwritten.
 
 ### migrate-senzing-dir
@@ -342,7 +344,8 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
     ```console
     migrate.py migrate-senzing-dir \
       --old-senzing-dir /opt/senzing-old \
-      --new-senzing-dir /opt/senzing-new
+      --new-senzing-dir /opt/senzing-new \
+      --g2config-blacklist /path/to/g2config-blacklist-N.N.N.json
     ```
 
 1. What does it do?
@@ -353,6 +356,7 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
     1. Create a directory of "proposed" changes.
         1. These are proposed changes to the new directory.
         1. Contents of the new directory is *not* changed.
+        1. Blacklists prevent migration of changes.
     1. Contents of the old directory is *not* changed.
     1. The location of the proposed changes is seen in the log.
 
