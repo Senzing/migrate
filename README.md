@@ -204,7 +204,7 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 
 #### Apply proposal
 
-1. Identify PROPOSED_SENZING_DIR.  From the `migrate.py` log, find the line with the proposal directory.
+1. Identify SENZING_DIR_PROPOSED.  From the `migrate.py` log, find the line with the proposal directory.
 
     ```console
     YYYY-MM-DD HH:MM:SS,sss INFO: migrate.py migrate-opt-senzing output: /path/to/senzing-proposal-nnnnnnnnnn
@@ -213,13 +213,13 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 1. Set environment variable.
 
     ```console
-    export PROPOSED_SENZING_DIR=/path/to/senzing-proposal-nnnnnnnnnn
+    export SENZING_DIR_PROPOSED=/path/to/senzing-proposal-nnnnnnnnnn
     ```
 
 1. Copy proposal into SENZING_DIR_NEW.
 
     ```console
-    cp -r ${PROPOSED_SENZING_DIR}/* ${SENZING_DIR_NEW}
+    cp -r ${SENZING_DIR_PROPOSED}/* ${SENZING_DIR_NEW}
     ```  
 
     An alternative is to pick-and-choose the files to be copied individually.  
