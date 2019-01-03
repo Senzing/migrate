@@ -743,7 +743,7 @@ def do_json_pretty_print(args):
 
     # Normalize the ordering of JSON lists.
 
-    normalizeJsonListOrderingForPrinting(input_dictionary)
+    normalize_json_list_ordering_for_printing(input_dictionary)
 
     # Write the output JSON file.
 
