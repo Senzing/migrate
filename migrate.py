@@ -706,6 +706,17 @@ def do_json_difference(args):
 # json-pretty-print subcommand
 # -----------------------------------------------------------------------------
 
+def normalizeJsonListOrderingForPrinting(jsondoc):
+    '''Alters a recursive json document by re-ording lists to a standard order '''
+    for key, value in jsondoc.items():
+        # Handle maps.
+        if isinstance(value, collections.Mapping):
+            normalizeJsonListOrderingForPrinting(value)
+        # Handle lists.
+        elif isinstance(value, list):
+            for list_element in value:
+                normalizeJsonListOrderingForPrinting(list_element)
+            value.sort()
 
 def do_json_pretty_print(args):
     '''A generic JSON pretty print which sorts the JSON keys and indents. '''
@@ -729,6 +740,10 @@ def do_json_pretty_print(args):
 
     with open(input_filename) as input_file:
         input_dictionary = json.load(input_file)
+
+    # Normalize the ordering of JSON lists.
+
+    normalizeJsonListOrderingForPrinting(input_dictionary)
 
     # Write the output JSON file.
 
