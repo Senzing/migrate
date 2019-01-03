@@ -711,7 +711,7 @@ def normalize_json_list_ordering_for_printing(jsondoc):
     for key, value in jsondoc.items():
         # Handle maps.
         if isinstance(value, collections.Mapping):
-            normalizeJsonListOrderingForPrinting(value)
+            normalize_json_list_ordering_for_printing(value)
         # Handle lists.
         elif isinstance(value, list):
             for list_element in value:
