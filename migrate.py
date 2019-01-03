@@ -706,7 +706,7 @@ def do_json_difference(args):
 # json-pretty-print subcommand
 # -----------------------------------------------------------------------------
 
-def normalizeJsonListOrderingForPrinting(jsondoc):
+def normalize_json_list_ordering_for_printing(jsondoc):
     '''Alters a recursive json document by re-ording lists to a standard order '''
     for key, value in jsondoc.items():
         # Handle maps.
