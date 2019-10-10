@@ -1,5 +1,7 @@
 # migrate
 
+## :no_entry: Deprecated
+
 ## Overview
 
 The [migrate.py](migrate.py) python script has a number of subcommands
