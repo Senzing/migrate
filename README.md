@@ -2,6 +2,10 @@
 
 ## :no_entry: Deprecated
 
+This functionality has been replaced by the G2ConfigTool.py
+
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+
 ## Overview
 
 The [migrate.py](migrate.py) python script has a number of subcommands
