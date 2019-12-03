@@ -125,6 +125,7 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
         ```
 
     1. macOS
+
         ```console
         sudo mkdir -p ${SENZING_DIR_NEW}
 
@@ -190,7 +191,7 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 
     ```console
     $ cd /path/to/senzing-proposal-nnnnnnnnnn
-
+    .
     $ tree
     .
     └── g2
@@ -226,9 +227,9 @@ Senzing_API.tgz to an existing `/opt/senzing` Senzing directory.
 
     ```console
     cp -r ${SENZING_DIR_PROPOSED}/* ${SENZING_DIR_NEW}
-    ```  
+    ```
 
-    An alternative is to pick-and-choose the files to be copied individually.  
+    An alternative is to pick-and-choose the files to be copied individually.
 
 #### Switch directories
 
